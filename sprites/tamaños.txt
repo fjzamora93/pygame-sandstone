@@ -1,0 +1,4 @@
+Tamaños recomendados:
+
+-Items: 30-50 píxeles
+-Partículas: 10-20 píxeles
