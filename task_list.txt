@@ -14,3 +14,16 @@ Crear un boss
 1. El boss cuenta con un sistema de vidas.
 2. El boss tiene dos tipos de ataques, uno cuando el jugador está cerca y otro cuando el jugador está lejos.
 2. El boss aplica un efecto (p. ej, ralentización). Este efecto debe verse en los corazones de player.
+
+
+
+TAREAS SIGUIENTES:
+1. Crear un menú principal.
+	a. Nueva partida.
+	b. Cargar partida.
+
+2. Crear un menú de selección de personaje.
+
+3. Crear un inventario.
+
+4. Crear un menú de selección de habilidades

@@ -1,8 +1,5 @@
 """
-En este tutorial veremos la pantalla de Game OVER,
-del mismo modo que aprenderemos a introducir texto.
 
-os es la librería para tener directorios guapos y no andar cambiando la url de las fotos
 Instalar la librería de movie: pip install pygame moviepy
 Buscar un tutorial para GIF
 
@@ -13,7 +10,6 @@ Librería de artes gratis: https://opengameart.org/content/lpc-medieval-fantasy-
 import pygame, random, os
 import soundtrack,textos_pantalla,stats
 
-from class_proyectil import Proyectil
 
 
 pygame.mixer.init()
@@ -24,52 +20,12 @@ black = (0, 0, 0)
 white = (255, 255, 255)
 
 
-class Corazon(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        # convert alpha es lo que va a quitar el color de fondo
-        self.image = pygame.image.load("corazon.png").convert_alpha()
-        self.rect = self.image.get_rect()
-        self.rect.x = random.randrange(ancho)
-        self.rect.y = random.randrange(alto)
+#todo ANTES DE CLASS GAME, PODRÍAN IR TODAS LAS CLASES IMPORTADAS
+from class_generic import Proyectil
+from class_generic import Corazon
+from class_generic import Wall
+from class_player import Player
 
-    def update(self):
-        self.rect.y += 1
-        if self.rect.y > alto:
-            self.rect.y = -10
-            self.rect.x = random.randrange(ancho)
-
-
-# TODO Clase de proyectil importada
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.image.load("player.png").convert_alpha()
-        self.rect = self.image.get_rect()
-        self.rect.x = 50
-        self.rect.y = 480
-        self.speed_x = 0
-        self.speed_y = 0
-        self.vidas = 10
-        self.direction="right"
-
-        # variables del salto
-        self.jumping = False
-        self.jump_count = 10
-        self.jump_height = 0
-
-    def changespeedx(self, x):
-        self.speed_x += x
-        if x > 0:
-            self.image = pygame.image.load(os.path.join('models', 'player_right.png')).convert_alpha()
-            self.direction = "right"
-        elif x < 0:
-            self.image = pygame.image.load(os.path.join('models', 'player_left.png')).convert_alpha()
-            self.direction = "left"
-
-    def update(self):  # Establecer la posición de origen, que se modifica con la velocidad
-        self.rect.x += self.speed_x
-        self.rect.y = 480 + self.speed_y
 
 
 class Game(object):
@@ -82,7 +38,9 @@ class Game(object):
         self.proyectil_list = pygame.sprite.Group()
         self.corazon_list = pygame.sprite.Group()
         self.all_sprites_list = pygame.sprite.Group()
-        self.vidas_list =pygame.sprite.Group()
+        self.mob_list =pygame.sprite.Group()
+        self.mob_atack_list = pygame.sprite.Group()
+        self.fuegos_cruzados = pygame.sprite.Group()
         
 
         for i in range(20):
@@ -92,27 +50,34 @@ class Game(object):
             self.corazon_list.add(self.corazon)
 
         # Vamos a empezar a crear las entidades del juego. Solo las que aparecen al principio
+        
+        self.mob = Wall()
         self.player = Player()
+        
+        
         self.all_sprites_list.add(self.player)
+        
+        
        
         
 
     def process_events(self):
-      
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return True
-
+            
             # LÓGICA DE LOS CONTROLES
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_d:
-                    self.player.changespeedx(5)
+                    self.player.changespeed_x(5)
                 if event.key == pygame.K_a:
-                    self.player.changespeedx(-5)
+                    self.player.changespeed_x(-5)
 
                 # El control de salto sigue una lógica muy concreto, revisa abajo en la parte lógica lo que está haciendo
-                if event.key == pygame.K_w and not self.player.jumping:
-                    self.player.jumping = True
+                if not self.player.jumping:
+                    if event.key == pygame.K_w:
+                        self.player.proceso_salto()
+                
 
                 if event.key == pygame.K_SPACE:
                     self.proyectil_2 = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
@@ -126,21 +91,22 @@ class Game(object):
                     self.proyectil.vector = "vertical"
                     self.all_sprites_list.add(self.proyectil)
                     self.proyectil_list.add(self.proyectil)
-                    
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_d:
                     self.player.speed_x = 0
                 if event.key == pygame.K_a:
                     self.player.speed_x = 0
-
             
+           
+
              #CREAMOS UNA NUEVA LÓGICA PARA REINICIAR EL JUEGO
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.game_over:
                     if self.game_over:
                         self.__init__()
 
+            
             
         # Obtén las coordenadas del ratón
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -153,41 +119,42 @@ class Game(object):
         # Introducimos una condición de cuando NO es Game over
         if not self.game_over:
             self.all_sprites_list.update()
-            #!BUENA SUERTE.... JEJEJE, PORQUE ESTÁ JODIDA LA COSA. Aunque no sale a cuenta trabajar con esta clase
-            if self.score > 10:
-                self.mob_1 = Corazon()
-                self.mob_1.image=pygame.image.load(os.path.join('models', 'bad_omen.png')).convert_alpha()
-                self.mob_1.rect.x= 500
-                self.mob_1.rect.y= 300
-                self.all_sprites_list.add(self.mob_1)
-                
 
+        #!Sigue provocando daño aunque no esté en pantalla!!!!
+            if self.score > 1 and self.mob.vida != 0:
+                self.mob.spawn(self.player.rect.x, self.player.rect.y)
+                self.mob.accion_aleatoria(self.all_sprites_list, self.mob_atack_list,self.player.rect.x)
+                if self.mob.vida > 0:
+                    self.mob_list.add(self.mob)
+                    self.all_sprites_list.add(self.mob)
+                if self.mob.vida < 0:
+                    self.mob.kill()
+                
+            
             player_hit_list = pygame.sprite.spritecollide(self.player, self.corazon_list, True)
-            for corazon in player_hit_list:
+            player_hit_list = pygame.sprite.spritecollide(self.player, self.mob_atack_list, True)
+            for _ in player_hit_list:
                 self.player.vidas -= 1
                 soundtrack.daño_recibido.play()
+
+            #! He tenido que meter la segunda condición...pero hay que limpiar ese código
+            if pygame.Rect.colliderect(self.player.rect, self.mob.rect) and self.mob.vida > 0:
+                #El temporizador del mob nos asegura que no se vaya de madre...
+                if self.mob.temporizador == 10:
+                    self.player.vidas -=1
 
 
             #El primer True elimina instancias del Grupo 2, El segundo True elimina instancias del Grupo 1
             success_shot_list = pygame.sprite.groupcollide(self.proyectil_list, self.corazon_list, False,True)
+            fuegos_cruzados = pygame.sprite.groupcollide(self.proyectil_list,self.mob_atack_list, False, True)
+
+            mob_hit_list = pygame.sprite.spritecollide(self.mob,self.proyectil_list, True)
+            for _ in mob_hit_list:
+                self.mob.vida -= 10
+                
             for shot in success_shot_list:
                 self.score += 1
                 soundtrack.coins.play()
-                print(self.score)
-
-        #Aquí tenemos la lógica del salto
-            if self.player.jumping:
-                    #Calcula la altura del salto en el momento actual. Utiliza una fórmula simple de parábola para calcular la altura en función del tiempo de salto (self.player.jump_count). A medida que jump_count disminuye, la altura del salto disminuye.
-                    self.player.jump_height = self.player.jump_count ** 2 * 0.5
-                    #Recalcula la posición del jugador al saltar
-                    self.player.rect.y -= self.player.jump_height
-                    #Este contador es el que disminuye la altura:
-                    self.player.jump_count -= 1
-                    #Reestablece todos los valores a 0
-                    if self.player.jump_count < 0:
-                        self.player.jumping = False
-                        self.player.jump_count = 20
-                        self.player.jump_height = 0
 
         #Pero al mismo tiempo, dentro de la lógica, debemos revisar qué sucede cuando Game Over es True
             if len(self.corazon_list)==0 or self.player.vidas ==0:
@@ -214,8 +181,11 @@ class Game(object):
             textos_pantalla.texto_puntuacion(screen, self.score)
             stats.hearts(screen, self.player.vidas)
 
+            #!MOBS
+        
 
-        #CON ESTE CÓDIGO SE ELIMINA EL ÍNDICE i DE LA LISTA. Por defecto, el número 2 par ano duplicar proyectiles
+
+            #CON ESTE CÓDIGO SE ELIMINA EL ÍNDICE i DE LA LISTA. Por defecto, el número 2 par ano duplicar proyectiles
             if len(self.proyectil_list) > 3:
                 # Elimina el primer sprite del grupo
                 sprite_a_eliminar = self.proyectil_list.sprites()[3]
