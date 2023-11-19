@@ -58,14 +58,15 @@ class Game(object):
         self.platform_list = pygame.sprite.Group()
 
         
-        for i in range(5):
+        for i in range(10):
             self.minion = Minion()
             self.all_sprites_list.add(self.minion)  
             self.minion_list.add(self.minion)
    
 
-        for i in range(10):
-            self.block = Block()
+        for i in range(5):
+            self.block = Block() 
+            
             self.all_sprites_list.add(self.block)
             self.blocks_list.add(self.block)
 
@@ -79,6 +80,8 @@ class Game(object):
         #!INICIALIZACIÓN DE ENTIDADES
         self.item = Items()
         self.mob = Mob()
+        self.vidas_mob = self.mob.vida
+
         self.player = Player()
         self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
         self.block = Block()
@@ -109,12 +112,14 @@ class Game(object):
                 if event.key == pygame.K_SPACE:
                     self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
                     self.proyectil.cargas_acumuladas = self.cargas_acumuladas
-                    self.cargas_acumuladas -= 1
-                    if self.cargas_acumuladas < 0:
-                        self.cargas_acumuladas = 0
-                    
                     self.proyectil.skill = self.proyectil_case
                     self.player.atack(self.proyectil_case)
+                    self.cargas_acumuladas -= 1
+                    if self.cargas_acumuladas <= 0:
+                        self.cargas_acumuladas = 0
+                        self.proyectil.skill = 0
+                        self.player.atack(0)
+              
                     self.proyectil.skill_set(self.all_sprites_list,self.proyectil_list)
                 
                 if event.key == pygame.K_q:
@@ -156,10 +161,13 @@ class Game(object):
      
       
             #!BOSS Y MOBS PRINCIPALES
-            if self.score % 10 == 0 :
-                self.mob.spawn(self.player.rect.x, self.player.rect.y)
-                self.mob.accion_aleatoria(self.all_sprites_list, self.mob_atack_list,self.player.rect.x)
-                self.mob_list.add(self.mob)
+            if self.score % 20 == 0:
+                if self.mob.vida <= 1:
+                    self.mob.kill()
+                    self.mob = Mob()      
+            self.mob.spawn(self.player.rect.x, self.player.rect.y)
+            self.mob.accion_aleatoria(self.all_sprites_list, self.mob_atack_list,self.player.rect.x)
+            self.mob_list.add(self.mob)
             if pygame.Rect.colliderect(self.player.rect, self.mob.rect) and self.mob.vida > 0:
                 if self.mob.temporizador == 10: #ralentiza ticks para que el mob haga menos daño por colision
                     self.player.vidas -=1
@@ -167,15 +175,16 @@ class Game(object):
             fuegos_cruzados = pygame.sprite.groupcollide(self.proyectil_list,self.mob_atack_list, False, True)
             mob_hit_list = pygame.sprite.spritecollide(self.mob,self.proyectil_list, True)
             for _ in mob_hit_list:
-                self.mob.vida -= 1 
+                self.mob.vida -= 1
+                self.score += 1 
                 self.mob.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_damage.png')).convert_alpha()
             
             #!MINIONS Y MOBS SECUNDARIOS            
             if len(self.minion_list) == 0:
                 for i in range(self.nivel_dificultad):
-                    self.nivel_dificultad += 1
+                    self.nivel_dificultad = 10
                     self.minion_1 = Minion()
-                    self.minion_1.speed += self.nivel_dificultad
+                    self.minion_1.speed += 0
                     self.minion_1.image = pygame.image.load(os.path.join('models','skill','pointed_dripstone.png'))
                     self.minion_list.add(self.minion_1)
                     self.all_sprites_list.add(self.minion_1)
@@ -191,7 +200,7 @@ class Game(object):
             success_shot_list = pygame.sprite.groupcollide(self.proyectil_list, self.minion_list, False,True)    
             for shot in success_shot_list:
                 self.score += 1
-                self.cargas_acumuladas += 2
+                self.cargas_acumuladas += 1
                 soundtrack.coins.play()
             
             
@@ -201,7 +210,7 @@ class Game(object):
                 sprite_a_eliminar.kill()
 
             if pygame.sprite.spritecollide(self.player,self.items_list, True):
-                self.cargas_acumuladas += 10
+                self.cargas_acumuladas += 5
                 if self.item.list_path_random == "models/items\gema.png":
                     self.player.vidas += 1
                 if self.item.list_path_random == "models/items\manzana.png":
@@ -214,15 +223,16 @@ class Game(object):
                     self.proyectil_case = 3
                 if self.item.list_path_random == "models/items\emerald.png":
                     self.proyectil_case = 4
-                self.item = Items()
                 
-                self.all_sprites_list.add(self.item)
-            
-            
-            if random.randint(0,1000) == 10:
+            if random.randint(0,500) == 500:
                 self.item = Items()
+                self.all_sprites_list.add(self.item)
+
             self.items_list.add(self.item)
                 
+            if pygame.sprite.spritecollide(self.player,self.items_list, True):
+                self.item.kill()
+                    
 
 
             #!Condición de GAME OVER
@@ -250,7 +260,7 @@ class Game(object):
 
 
         #TODO Bloques en pantalla
-      
+        self.block.carpeta = 'models/blocks/big-block'
 
         #! PANTALLA DE FIN DEL JUEGO
         if self.game_over and len(self.minion_list) == 0:
@@ -259,10 +269,11 @@ class Game(object):
             textos_pantalla.texto_game_over_2(black,ancho,alto,screen)
         
 
-        #! PANTALLA SI NO ES FIN DEL JUEGO
+        #! STATS Y PUNTUACIONES
         if not self.game_over:
             textos_pantalla.texto_puntuacion(screen, self.score)
             stats.hearts(screen, self.player.vidas)
+            stats.hearts_mob(screen,self.mob.vida)
             textos_pantalla.texto_cargas(screen, self.cargas_acumuladas)
 
             #!Este de aquí es obligatorio para actualizar lo que se ve en pantalla

@@ -84,30 +84,30 @@ class Proyectil(pygame.sprite.Sprite):
                 self.image = pygame.image.load(os.path.join('models','skill','arrow_left.png')).convert_alpha()
 
         if self.skill == 2 and self.cargas_acumuladas > 0:    
-                self.image = pygame.image.load(os.path.join('models','skill','snowball.png')).convert_alpha()
-                soundtrack.ice.play()
-                self.vector = "horizontal"
-                self.speed = 10
-                self.limite = 5
+            self.image = pygame.image.load(os.path.join('models','skill','snowball.png')).convert_alpha()
+            soundtrack.ice.play()
+            self.vector = "horizontal"
+            self.speed = 10
+            self.limite = 5
           
         if self.skill == 3 and self.cargas_acumuladas > 0:         
-                self.image = pygame.image.load(os.path.join('models','skill','fireball.png')).convert_alpha()
-                soundtrack.atack_fireball_1.play()
-                self.vector = "horizontal"
-                self.speed = 10
-                self.limite = 10
+            self.image = pygame.image.load(os.path.join('models','skill','fireball.png')).convert_alpha()
+            soundtrack.atack_fireball_1.play()
+            self.vector = "horizontal"
+            self.speed = 10
+            self.limite = 10
 
         if self.skill == 4 and self.cargas_acumuladas > 0:    
-                self.image = pygame.image.load(os.path.join('models','skill','sonic.png')).convert_alpha()
-                soundtrack.efecto_magia_1.play()
-                self.vector = "horizontal"
-                self.speed = 5
-                self.rect.y -= 20
-                self.limite = 20
+            self.image = pygame.image.load(os.path.join('models','skill','sonic.png')).convert_alpha()
+            soundtrack.efecto_magia_1.play()
+            self.vector = "horizontal"
+            self.speed = 5
+            self.rect.y -= 20
+            self.limite = 20
 
         if self.skill == 5:
-                self.image = pygame.image.load(os.path.join('models','skill','rocket.png')).convert_alpha()
-                soundtrack.atack_laser.play()
+            self.image = pygame.image.load(os.path.join('models','skill','rocket.png')).convert_alpha()
+            soundtrack.atack_laser.play()
         all_sprites_list.add(self)
         proyectil_list.add(self)
 

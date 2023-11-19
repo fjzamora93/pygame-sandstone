@@ -24,7 +24,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = 480
         self.speed_x = 0
         self.speed_y = 0
-        self.vidas = 30
+        self.vidas = 10
         self.direction = "right"
         
         # variables del salto,caida y gravedad
@@ -93,9 +93,7 @@ class Player(pygame.sprite.Sprite):
                 self.image = pygame.image.load(os.path.join('models', 'player', 'player_concentrate.png')).convert_alpha()
                 if self.direction == "left":
                     self.image = pygame.image.load(os.path.join('models','player','player_concentrate_left.png')).convert_alpha()
-            
-            
-           
+     
             case 5:
                 self.image = pygame.image.load(os.path.join('models','player','player_summoning_1.png')).convert_alpha()
       
