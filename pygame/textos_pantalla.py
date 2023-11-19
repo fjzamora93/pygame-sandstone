@@ -24,3 +24,7 @@ def texto_puntuacion(screen, score):
     puntuacion = font.render(f"Score: {score}", True, white)
     screen.blit(puntuacion,[710,10])
 
+def texto_cargas(screen, cargas_acumuladas):
+    font= pygame.font.SysFont("arial",50)
+    cargas_acumuladas = font.render(f"Cargas: {cargas_acumuladas}", True, white)
+    screen.blit(cargas_acumuladas, [10, 50])

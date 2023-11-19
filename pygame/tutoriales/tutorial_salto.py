@@ -33,10 +33,8 @@ while run:
     if not(isJump): 
         if keys[pygame.K_UP] and y > vel:
             y -= vel
-
         if keys[pygame.K_DOWN] and y < 500 - height - vel:
             y += vel
-
         if keys[pygame.K_SPACE]:
             isJump = True
     else:

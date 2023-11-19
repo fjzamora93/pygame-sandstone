@@ -3,59 +3,118 @@ import soundtrack
 
 ancho=900
 alto=554
-black = (0,0,0)
-white = (255,255,255)
 
-class Corazon(pygame.sprite.Sprite):
+
+
+class Minion(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        # convert alpha es lo que va a quitar el color de fondo
         self.image = pygame.image.load("corazon.png").convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(ancho)
         self.rect.y = random.randrange(alto)
+        self.speed = 1
+
 
     def update(self):
-        self.rect.y += 1
+        self.rect.y += self.speed
         if self.rect.y > alto:
             self.rect.y = -10
             self.rect.x = random.randrange(ancho)
-
-
+    
+    
 class Proyectil(pygame.sprite.Sprite):
     def __init__(self,player_x,player_y,direction):
         super().__init__()
-        
-        #IMAGEN Y POSICIÓN
-        self.image = pygame.image.load(os.path.join('models','proyectil','fireball.png')).convert_alpha()
+        self.image = pygame.image.load(os.path.join('models','skill','sweep_1.png')).convert_alpha()
         self.objeto = None      
-        self.vector= None
-        self.sonidos= True #Esto activa el sonido una vez. Si está en false, se repetirá en bucle
+        self.vector= "melee"
         self.rect = self.image.get_rect()
-        self.rect.x = player_x +10
+        self.rect.x = player_x 
+        self.pos_origen = self.rect.x
         self.rect.y = player_y +10
         self.direction = direction
+
+        #Condiciones de los ataques
+        self.skill = 0 
         self.speed = 5
+        self.speed_y = 0
+        self.limite = 3
+        self.cargas_acumuladas = 0
+
+        
         
     def update(self):
         if self.vector== "vertical":
             self.rect.y -= self.speed
-            self.image = pygame.image.load("firework_rocket.png").convert_alpha()
-            if self.sonidos == True:
-                soundtrack.atack_laser.play()
-                self.sonidos = False
+
         elif self.vector== "horizontal":
+            self.rect.y += self.speed_y
             if self.direction == "right":
                 self.rect.x += self.speed
             if self.direction == "left":
                 self.rect.x -= self.speed
-            if self.sonidos == True:
-                soundtrack.atack_fireball_1.play()
-                self.sonidos = False
+
+        elif self.vector == "melee":
+            if self.direction == "right":
+                self.rect.x += self.speed 
+            elif self.direction == "left":
+                self.rect.x -= self.speed
+            if self.rect.x > self.pos_origen +100 or self.rect.x  < self.pos_origen-120:
+                self.kill()
+
         if self.rect.x > ancho or self.rect.x < 0 or self.rect.y<0:
             self.kill()
 
-class Wall(pygame.sprite.Sprite):
+    def skill_set(self,all_sprites_list,proyectil_list):
+        print (f"Depuración Nº3: {self.cargas_acumuladas}")
+    
+      
+        if self.skill == 0 or self.cargas_acumuladas <= 0:
+            self.image = pygame.image.load(os.path.join('models','skill','sweep_1.png')).convert_alpha()
+            soundtrack.sword.play()
+
+        if self.skill == 1 and self.cargas_acumuladas > 0:    
+            self.image = pygame.image.load(os.path.join('models','skill','arrow.png')).convert_alpha()
+            self.speed_y += 0.5
+            self.speed = 10
+            soundtrack.arco.play()
+            self.vector = "horizontal"
+            if self.direction == "left":
+                self.image = pygame.image.load(os.path.join('models','skill','arrow_left.png')).convert_alpha()
+
+        if self.skill == 2 and self.cargas_acumuladas > 0:    
+                self.image = pygame.image.load(os.path.join('models','skill','snowball.png')).convert_alpha()
+                soundtrack.ice.play()
+                self.vector = "horizontal"
+                self.speed = 10
+                self.limite = 5
+          
+        if self.skill == 3 and self.cargas_acumuladas > 0:         
+                self.image = pygame.image.load(os.path.join('models','skill','fireball.png')).convert_alpha()
+                soundtrack.atack_fireball_1.play()
+                self.vector = "horizontal"
+                self.speed = 10
+                self.limite = 10
+
+        if self.skill == 4 and self.cargas_acumuladas > 0:    
+                self.image = pygame.image.load(os.path.join('models','skill','sonic.png')).convert_alpha()
+                soundtrack.efecto_magia_1.play()
+                self.vector = "horizontal"
+                self.speed = 5
+                self.rect.y -= 20
+                self.limite = 20
+
+        if self.skill == 5:
+                self.image = pygame.image.load(os.path.join('models','skill','rocket.png')).convert_alpha()
+                soundtrack.atack_laser.play()
+        all_sprites_list.add(self)
+        proyectil_list.add(self)
+
+
+
+
+class Mob(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_up.png')).convert_alpha()
@@ -63,53 +122,60 @@ class Wall(pygame.sprite.Sprite):
         self.temporizador = 10
         self.rect.x = 0
         self.rect.y = 0
+        self.jumping = False
         self.speed_x = 0
+        self.speed_y = 1
         self.aparicion= False
         self.vida = 10
         self.direction = "right"
+        self.jumping = False
+        self.jump_count = 10
+        self.listado_acciones= ["atacar","desplazarse", "desplazarse", "pausa", "salto"]
+
+    def accion_aleatoria(self, all_sprites_list, mob_atack_list,player_position):
+        if self.vida > 0:
+            all_sprites_list.add(self)
+            eleccion= random.choice(self.listado_acciones)
+            self.temporizador -= 1
+            if self.temporizador == 0:
+                self.temporizador = 20
+                if eleccion == "atacar":
+                    self.atacar(all_sprites_list, mob_atack_list,player_position)
+                elif eleccion == "desplazarse":
+                    if self.rect.x < 100:
+                        self.speed_x += 5
+                        self.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_right.png')).convert_alpha()
+                    elif self.rect.x > 700:
+                        self.speed_x -= 5
+                        self.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_left.png')).convert_alpha()
+                    else:
+                        self.speed_x += random.randint(-5,5)
+                elif eleccion == "pausa":
+                    self.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_pause.png')).convert_alpha()
+                    self.speed_x = 0
+                elif eleccion == "salto":
+                    self.jumping = True          
+        else:
+            self.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_death.png')).convert_alpha()
+            self.rect.y = 500
+            
+            
         
-        
-    
-    def accion_aleatoria(self, all_sprites_list, mob_atack_list,player_direction):
-        self.listado_acciones= ["atacar", "desplazarse", "pausa", "salto"]
-        eleccion= random.choice(self.listado_acciones)
-        self.temporizador -= 1
-        if self.temporizador == 0:
-            self.temporizador = 10
-            if eleccion == "atacar":
-                self.atacar(all_sprites_list, mob_atack_list,player_direction)
-            elif eleccion == "desplazarse":
-                if self.rect.x < 100:
-                    self.speed_x += 5
-                    self.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_right.png')).convert_alpha()
-                elif self.rect.x > 700:
-                    self.speed_x -= 5
-                    self.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_left.png')).convert_alpha()
-                else:
-                    self.speed_x += random.randint(-5,5)
-            elif eleccion == "pausa":
-                self.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_pause.png')).convert_alpha()
-                self.speed_x = 0
-        
-    def atacar(self, all_sprites_list, mob_atack_list, player_position):
+    def atacar(self,all_sprites_list, mob_atack_list, player_position):
         self.mob_atack = Proyectil(self.rect.x,self.rect.y,self.direction)
         self.mob_atack.vector = "horizontal"
         self.mob_atack.speed = 3
-        self.mob_atack.image = pygame.image.load(os.path.join('models','proyectil','bad_omen.png')).convert_alpha()
+        self.mob_atack.image = pygame.image.load(os.path.join('models','skill','bad_omen.png')).convert_alpha()
         if player_position > self.rect.x:
             self.direction = "right"
             self.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_atack.png')).convert_alpha()
-        if player_position < self.rect.x:
+        elif player_position < self.rect.x:
             self.direction = "left"
             self.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_atack.png')).convert_alpha()
-        
-        #!NO FUNCIONA
-        if self.vida > 0:
-            all_sprites_list.add(self.mob_atack)
-            mob_atack_list.add(self.mob_atack)
-        elif self.vida< 0:
-            self.kill()
+        all_sprites_list.add(self.mob_atack)
+        mob_atack_list.add(self.mob_atack)
     
+        
 
     def update(self):
         self.rect.x += self.speed_x
@@ -117,8 +183,16 @@ class Wall(pygame.sprite.Sprite):
             self.rect.x = 0
         if self.rect.x > 700:
             self.rect.x = 700
+        if self.jumping:
+            if self.jump_count >= -10:
+                self.rect.y -= int((self.jump_count * abs(self.jump_count)) * 0.4)
+                self.jump_count -= 1
+            else:
+                self.jump_count = 10
+                self.jumping = False
+    
+    
          
-
     def spawn(self,player_x,player_y):
         if self.aparicion == False:
             self.rect.y = player_y

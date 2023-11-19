@@ -1,12 +1,10 @@
-1. Implementar una animación cuando el jugador ataca
-2. Implementar un mob básico (solo movimiento y que cambie la animación cuando player esté cerca).
-3. Implementar una plataforma y que se pueda saltar en la plataforma.
+1. Conseguir que la animación del jugador se mueva al atacar...
+2. Crear un segundo mob más débil a partir de la clase ya existente.
 4. Crear una pantalla dinámica. La pantalla se mueve según avanza el jugador.
-5. Crear una instancia a partir de la clase Corazón. Esta instancia será estática y debe poder destruirse sin más.
-6. Cambiar la animación cuando el jugador recibe un impacto (un parpadeo)
-7. Inclur gif o imágenes en movimiento
-8. Que solo pueda haber un proyectil en pantalla a la vez, impedir la aparición de múltiples proyectiles
+5. Crear un objeto coleccionable que dará mejoras.
 
+
+8. Mostrar más cosas en pantalla (la vida del mob, las habilidades...)
 
 
 
