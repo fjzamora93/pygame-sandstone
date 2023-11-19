@@ -1,12 +1,14 @@
 import pygame
-import os,glob,random
+import os
+import glob
+import random
 
 ancho = 900
 alto = 554
 
-def obtener_ruta():
+def obtener_ruta(carpeta_final):
     # Ruta de la carpeta que contiene los archivos PNG
-    carpeta = 'models/blocks'
+    carpeta = os.path.join('models/blocks', carpeta_final)
 
     # Patrón de búsqueda para archivos PNG
     patron_png = os.path.join(carpeta, '*.png')
@@ -22,24 +24,20 @@ def obtener_ruta():
     for archivo in block_path_png:
         print(archivo)
 
-    return block_path_png
-
+    return block_path_png  # Devuelve la lista de archivos PNG
 
 class Block(pygame.sprite.Sprite):
-    def __init__(self,block_path_png):
+    def __init__(self):
         super().__init__()
-        self.image=pygame.image.load(block_path_png).convert_alpha()
+        self.carpeta_final = "interruptor"
+        self.path_definitivo = random.choice(obtener_ruta(self.carpeta_final))
+        self.image = pygame.image.load(self.path_definitivo).convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(ancho)
-        self.rect.y = random.randrange(400,401)
+        self.rect.y = 400
     
     def update(self):
+        
+        # Puedes cambiar estos valores para controlar el movimiento del bloque
         self.rect.x += 0
         self.rect.y += 0
-    
-    
-    
-if __name__== "__main__":
-    obtener_ruta()
-
-   

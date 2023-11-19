@@ -9,7 +9,7 @@ alto=554
 class Minion(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("corazon.png").convert_alpha()
+        self.image = pygame.image.load(os.path.join('models', 'particle', 'biter.png')).convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(ancho)
         self.rect.y = random.randrange(alto)

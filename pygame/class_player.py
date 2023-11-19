@@ -17,14 +17,14 @@ player_caminar_list = glob.glob(patron_png)
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("player.png").convert_alpha()
+        self.image = pygame.image.load(os.path.join('models', 'player', 'player.png')).convert_alpha()
         self.lista_caminar = player_caminar_list #La tengo aquí por tenerla....
         self.rect = self.image.get_rect()
         self.rect.x = 50
         self.rect.y = 480
         self.speed_x = 0
         self.speed_y = 0
-        self.vidas = 10
+        self.vidas = 30
         self.direction = "right"
         
         # variables del salto,caida y gravedad
@@ -44,17 +44,21 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.image.load(os.path.join(player_caminar_list[random.randint(0,5)])).convert_alpha()
             self.direction = "right"
         elif x < 0:
-            self.image = pygame.image.load(os.path.join('models', 'player_left.png')).convert_alpha()
+            self.image = pygame.image.load(os.path.join('models', 'player', 'player_left.png')).convert_alpha()
             self.direction = "left"
-        if not self.jumping and self.rect.y < 480:
-            self.speed_y = +5
+        
     def esquivar(self):
         self.image= pygame.image.load(os.path.join('models', 'player', 'player_summoning_2.png')).convert_alpha()
         
 
     def update(self):  
         #contador interno de animacion
-    
+        #if not self.jumping and  and self.colision_block == False:
+            #self.speed_y = 5
+        
+        if self.is_falling and not self.jumping and self.rect.y < 480:
+            self.speed_y = 5
+
         self.rect.x += self.speed_x
         self.rect.y += self.speed_y
         if self.rect.y > 480:
@@ -71,8 +75,7 @@ class Player(pygame.sprite.Sprite):
                 self.jump_count = 10
                 self.jumping = False
                 self.image= pygame.image.load(os.path.join('models', 'player', 'player_summoning_2.png')).convert_alpha()
-                if not self.colision_block:
-                    self.is_falling=False
+                
 
     def atack(self,skill):
         match skill:
@@ -87,7 +90,7 @@ class Player(pygame.sprite.Sprite):
                 self.image = pygame.image.load(os.path.join('models','player','player_summoning_1.png')).convert_alpha()
             
             case 3:
-                self.image = pygame.image.load(os.path.join('models', 'player_concentrate.png')).convert_alpha()
+                self.image = pygame.image.load(os.path.join('models', 'player', 'player_concentrate.png')).convert_alpha()
                 if self.direction == "left":
                     self.image = pygame.image.load(os.path.join('models','player','player_concentrate_left.png')).convert_alpha()
             
@@ -114,4 +117,5 @@ class Player(pygame.sprite.Sprite):
                 self.speed_x = 0
         elif not self.rect.colliderect(block_rect):
             self.colision_block= False
-            self.is_falling = False
+            self.is_falling = True
+

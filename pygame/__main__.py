@@ -34,12 +34,12 @@ from class_items import Items
 class Game(object):
     def __init__(self):
         # Creamos una instancia de game over FALSE
+        soundtrack.ambiente_sunset.play()
         self.game_over = False
         self.score = 0
         self.n = 0
         self.contador_1 = 0
         self.nivel_dificultad = 1
-        self.block_path_png = obtener_ruta()
         
         self.condicion= False
         self.proyectil_case = 0
@@ -55,6 +55,7 @@ class Game(object):
         self.fuegos_cruzados = pygame.sprite.Group()
         self.blocks_list =pygame.sprite.Group()
         self.items_list = pygame.sprite.Group()
+        self.platform_list = pygame.sprite.Group()
 
         
         for i in range(5):
@@ -63,17 +64,24 @@ class Game(object):
             self.minion_list.add(self.minion)
    
 
-        for i in range(5):
-            self.block = Block(self.block_path_png[4]) 
+        for i in range(10):
+            self.block = Block()
             self.all_sprites_list.add(self.block)
             self.blocks_list.add(self.block)
+
+        for i in range(10):
+            self.platform_2 = Block()
+            self.platform_2.rect.y = 300
+            self.all_sprites_list.add(self.platform_2)
+            self.platform_list.add(self.platform_2)
+
 
         #!INICIALIZACIÓN DE ENTIDADES
         self.item = Items()
         self.mob = Mob()
         self.player = Player()
         self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
-        self.block = Block(self.block_path_png[1])
+        self.block = Block()
         self.all_sprites_list.add(self.player)
         self.all_sprites_list.add(self.block)
         self.all_sprites_list.add(self.item)
@@ -132,7 +140,7 @@ class Game(object):
             
         # Obtén las coordenadas del ratón
         mouse_x, mouse_y = pygame.mouse.get_pos()
-        print(f"X: {mouse_x}, Y: {mouse_y}")
+        #print(f"X: {mouse_x}, Y: {mouse_y}")
 
         # Se me olvidó qué es esto
         return False
@@ -141,11 +149,14 @@ class Game(object):
         if not self.game_over:
             self.all_sprites_list.update()
 
-            self.player.deteccion_colision(self.blocks_list,self.block.rect,self.block.rect.y,self.block.rect.top,self.block.rect.left,self.block.rect.right)
             
+            self.player.deteccion_colision(self.blocks_list,self.block.rect,self.block.rect.y,self.block.rect.top,self.block.rect.left,self.block.rect.right)
+            self.player.deteccion_colision(self.platform_list,self.platform_2.rect,self.platform_2.rect.y,self.platform_2.rect.top,self.platform_2.rect.left,self.platform_2.rect.right)
+
+     
       
             #!BOSS Y MOBS PRINCIPALES
-            if self.score > 1:
+            if self.score % 10 == 0 :
                 self.mob.spawn(self.player.rect.x, self.player.rect.y)
                 self.mob.accion_aleatoria(self.all_sprites_list, self.mob_atack_list,self.player.rect.x)
                 self.mob_list.add(self.mob)
@@ -180,19 +191,15 @@ class Game(object):
             success_shot_list = pygame.sprite.groupcollide(self.proyectil_list, self.minion_list, False,True)    
             for shot in success_shot_list:
                 self.score += 1
-                self.player.amount_charge += 2
+                self.cargas_acumuladas += 2
                 soundtrack.coins.play()
             
             
             #! BONIFICACIONES Y CONTROL DE ATAQUE
-            
-
-        
             if len(self.proyectil_list) > self.proyectil.limite:
                 sprite_a_eliminar = self.proyectil_list.sprites()[self.proyectil.limite]
                 sprite_a_eliminar.kill()
 
-            
             if pygame.sprite.spritecollide(self.player,self.items_list, True):
                 self.cargas_acumuladas += 10
                 if self.item.list_path_random == "models/items\gema.png":
@@ -212,14 +219,10 @@ class Game(object):
                 self.all_sprites_list.add(self.item)
             
             
-            
-            if random.randint(0,100) == 10:
+            if random.randint(0,1000) == 10:
                 self.item = Items()
             self.items_list.add(self.item)
                 
-                
-
-
 
 
             #!Condición de GAME OVER
@@ -247,10 +250,7 @@ class Game(object):
 
 
         #TODO Bloques en pantalla
-        for block in self.blocks_list:
-            block.image=pygame.image.load(self.block_path_png[self.n]).convert_alpha()
-        
-        
+      
 
         #! PANTALLA DE FIN DEL JUEGO
         if self.game_over and len(self.minion_list) == 0:
@@ -281,7 +281,7 @@ def main():
         done = game.process_events()
         game.run_logic()
         game.display_frame(screen)
-        clock.tick(60)
+        clock.tick(50)
     pygame.quit()
 
 if __name__ == "__main__":
