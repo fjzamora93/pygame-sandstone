@@ -36,6 +36,7 @@ class Player(pygame.sprite.Sprite):
         #Variables habilidades
         self.skill = None
         self.amount_charge = 0
+        self.guardia_activa = True
         
         
     def changespeed_x(self, x):
@@ -46,10 +47,7 @@ class Player(pygame.sprite.Sprite):
         elif x < 0:
             self.image = pygame.image.load(os.path.join('models', 'player', 'player_left.png')).convert_alpha()
             self.direction = "left"
-        
-    def esquivar(self):
-        self.image= pygame.image.load(os.path.join('models', 'player', 'player_summoning_2.png')).convert_alpha()
-        
+      
 
     def update(self):  
         #contador interno de animacion
@@ -58,7 +56,6 @@ class Player(pygame.sprite.Sprite):
         
         if self.is_falling and not self.jumping and self.rect.y < 480:
             self.speed_y = 5
-
         self.rect.x += self.speed_x
         self.rect.y += self.speed_y
         if self.rect.y > 480:
@@ -66,11 +63,10 @@ class Player(pygame.sprite.Sprite):
         # Lógica salto
         if self.jumping:
             self.is_falling = True
-            self.image = pygame.image.load(os.path.join('models','player','player_summoning_1.png')).convert_alpha()
+            self.image = pygame.image.load(os.path.join('models','player','player_summoning_2.png')).convert_alpha()
             if self.jump_count >= -8:
                 self.rect.y -= int((self.jump_count * abs(self.jump_count)) * 0.4)
                 self.jump_count -= 1
-
             else:
                 self.jump_count = 10
                 self.jumping = False
@@ -96,7 +92,15 @@ class Player(pygame.sprite.Sprite):
      
             case 5:
                 self.image = pygame.image.load(os.path.join('models','player','player_summoning_1.png')).convert_alpha()
-      
+
+            case 6:
+                self.image = pygame.image.load(os.path.join('models','player','player_proteccion.png')).convert_alpha()
+
+    def proteccion(self):
+       
+        self.image = pygame.image.load(os.path.join('models','player','player_proteccion.png')).convert_alpha()
+        self.guardia_activa = True
+        print ("guardia activada")
 
     def deteccion_colision(self,blocks_list,block_rect,block_y,block_top,block_left,block_rigth):
         #if self.rect.colliderect(block_rect):

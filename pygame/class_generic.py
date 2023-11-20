@@ -32,7 +32,7 @@ class Proyectil(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = player_x 
         self.pos_origen = self.rect.x
-        self.rect.y = player_y +10
+        self.rect.y = player_y + 10
         self.direction = direction
 
         #Condiciones de los ataques
@@ -62,6 +62,11 @@ class Proyectil(pygame.sprite.Sprite):
                 self.rect.x -= self.speed
             if self.rect.x > self.pos_origen +100 or self.rect.x  < self.pos_origen-120:
                 self.kill()
+        
+        elif self.vector == "static":
+            self.rect.x = self.rect.x
+            self.rect.y = self.rect.y
+            
 
         if self.rect.x > ancho or self.rect.x < 0 or self.rect.y<0:
             self.kill()
@@ -108,6 +113,12 @@ class Proyectil(pygame.sprite.Sprite):
         if self.skill == 5:
             self.image = pygame.image.load(os.path.join('models','skill','rocket.png')).convert_alpha()
             soundtrack.atack_laser.play()
+
+        if self.skill == 6:
+            self.image= pygame.image.load(os.path.join('models', 'skill', 'buble.png')).convert_alpha()
+            self.vector = "static"
+            
+
         all_sprites_list.add(self)
         proyectil_list.add(self)
 

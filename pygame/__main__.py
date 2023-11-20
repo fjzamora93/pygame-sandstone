@@ -41,7 +41,7 @@ class Game(object):
         self.contador_1 = 0
         self.nivel_dificultad = 1
         
-        self.condicion= False
+        self.autodestruccion= True
         self.proyectil_case = 0
         self.cargas_acumuladas = 0
         
@@ -64,18 +64,20 @@ class Game(object):
             self.minion_list.add(self.minion)
    
 
-        for i in range(5):
+        for i in range(8):
             self.block = Block() 
-            
+            self.block.rect.y = 300
             self.all_sprites_list.add(self.block)
             self.blocks_list.add(self.block)
-
-        for i in range(10):
+       
+        for i in range(2):
             self.platform_2 = Block()
-            self.platform_2.rect.y = 300
+            self.platform_2.carpeta = 'models/blocks/big-block'
+            self.platform_2.obtener_ruta()
+            self.platform_2.rect.y = 400
             self.all_sprites_list.add(self.platform_2)
             self.platform_list.add(self.platform_2)
-
+       
 
         #!INICIALIZACIÓN DE ENTIDADES
         self.item = Items()
@@ -84,11 +86,11 @@ class Game(object):
 
         self.player = Player()
         self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
-        self.block = Block()
+
         self.all_sprites_list.add(self.player)
-        self.all_sprites_list.add(self.block)
+   
         self.all_sprites_list.add(self.item)
-        self.blocks_list.add(self.block)
+    
         
 
     def process_events(self):
@@ -103,10 +105,12 @@ class Game(object):
                 if event.key == pygame.K_a:
                     self.player.changespeed_x(-5)
                 if event.key == pygame.K_s:
-                    self.player.esquivar()
+                    self.player.proteccion()
+                
                 if not self.player.jumping:
                     if event.key == pygame.K_w:
                         self.player.jumping = True
+                
 
                 #Lógica de ataques
                 if event.key == pygame.K_SPACE:
@@ -114,11 +118,14 @@ class Game(object):
                     self.proyectil.cargas_acumuladas = self.cargas_acumuladas
                     self.proyectil.skill = self.proyectil_case
                     self.player.atack(self.proyectil_case)
-                    self.cargas_acumuladas -= 1
+                    if self.proyectil.skill != 0:
+                        self.cargas_acumuladas -= 1
                     if self.cargas_acumuladas <= 0:
                         self.cargas_acumuladas = 0
                         self.proyectil.skill = 0
                         self.player.atack(0)
+                        self.proyectil_case = 0
+                        self.autodestruccion = True
               
                     self.proyectil.skill_set(self.all_sprites_list,self.proyectil_list)
                 
@@ -190,14 +197,21 @@ class Game(object):
                     self.all_sprites_list.add(self.minion_1)
 
             #Daño y pérdida de vida
+            
             player_hit_list = pygame.sprite.spritecollide(self.player, self.minion_list, True)
             player_hit_list += pygame.sprite.spritecollide(self.player, self.mob_atack_list, True)
-            for _ in player_hit_list:
-                self.player.vidas -= 1
-                soundtrack.daño_recibido.play()
+            
+            if not self.player.guardia_activa:
+                for _ in player_hit_list:
+                    self.player.vidas -= 1
+                    soundtrack.daño_recibido.play()
+            if player_hit_list:
+                self.player.guardia_activa = False
+                self.player.image = pygame.image.load(os.path.join('models','player','player_meditate.png')).convert_alpha()
+            
 
             #Puntuación y score    
-            success_shot_list = pygame.sprite.groupcollide(self.proyectil_list, self.minion_list, False,True)    
+            success_shot_list = pygame.sprite.groupcollide(self.proyectil_list, self.minion_list, self.autodestruccion,True)    
             for shot in success_shot_list:
                 self.score += 1
                 self.cargas_acumuladas += 1
@@ -223,6 +237,7 @@ class Game(object):
                     self.proyectil_case = 3
                 if self.item.list_path_random == "models/items\emerald.png":
                     self.proyectil_case = 4
+                    self.autodestruccion = False
                 
             if random.randint(0,500) == 500:
                 self.item = Items()
@@ -260,7 +275,10 @@ class Game(object):
 
 
         #TODO Bloques en pantalla
-        self.block.carpeta = 'models/blocks/big-block'
+        
+        
+
+
 
         #! PANTALLA DE FIN DEL JUEGO
         if self.game_over and len(self.minion_list) == 0:

@@ -4,7 +4,7 @@ pygame.mixer.init()
 
 
     #AMBIENTE
-ambiente_nubes = pygame.mixer.Sound(os.path.join('sounds','ambiente_nubes.mp3'))
+
 ambiente_sunset = pygame.mixer.Sound(os.path.join('sounds','ambiente_sunset.mp3'))
 
     #INTERACCIONES
