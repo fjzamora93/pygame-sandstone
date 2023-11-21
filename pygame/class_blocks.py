@@ -24,8 +24,6 @@ class Block(pygame.sprite.Sprite):
         self.rect.y = 400
        
         #Actualmente sin usar 
-        
-        
         #imagen del bloque
         
         
@@ -38,7 +36,6 @@ class Block(pygame.sprite.Sprite):
         if self.n > 39:
             self.n= 0
       
-    
     def obtener_ruta(self):
         self.patron_png = os.path.join(self.carpeta, '*.png')
         self.block_path_png=[]

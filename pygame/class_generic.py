@@ -42,12 +42,24 @@ class Proyectil(pygame.sprite.Sprite):
         self.limite = 3
         self.cargas_acumuladas = 0
 
+        #Solo para el mob (de ahí que esté en negativo)
+        self.target = -10
         
+
         
     def update(self):
-        if self.vector== "vertical":
+        
+        if self.vector == "vertical": #SUBIDA DEL MISIL
             self.rect.y -= self.speed
-
+            if self.rect.y < 0:
+                self.vector = "caida"
+                print ("Condición 1")
+        
+        if self.vector == "caida":
+            self.rect.x = self.target
+            self.rect.y += 10
+            print ("Condición 2")
+        
         elif self.vector== "horizontal":
             self.rect.y += self.speed_y
             if self.direction == "right":
@@ -68,12 +80,11 @@ class Proyectil(pygame.sprite.Sprite):
             self.rect.y = self.rect.y
             
 
-        if self.rect.x > ancho or self.rect.x < 0 or self.rect.y<0:
+        if self.rect.x > ancho or self.rect.x < 0 or self.rect.y < -30 or self.rect.y > alto:
             self.kill()
 
     def skill_set(self,all_sprites_list,proyectil_list):
         print (f"Depuración Nº3: {self.cargas_acumuladas}")
-    
       
         if self.skill == 0 or self.cargas_acumuladas <= 0:
             self.image = pygame.image.load(os.path.join('models','skill','sweep_1.png')).convert_alpha()
@@ -141,7 +152,7 @@ class Mob(pygame.sprite.Sprite):
         self.direction = "right"
         self.jumping = False
         self.jump_count = 10
-        self.listado_acciones= ["atacar","desplazarse", "desplazarse", "pausa", "salto"]
+        self.listado_acciones= ["atacar","desplazarse", "misil", "pausa", "salto"]
 
     def accion_aleatoria(self, all_sprites_list, mob_atack_list,player_position):
         if self.vida > 0:
@@ -165,7 +176,9 @@ class Mob(pygame.sprite.Sprite):
                     self.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_pause.png')).convert_alpha()
                     self.speed_x = 0
                 elif eleccion == "salto":
-                    self.jumping = True          
+                    self.jumping = True   
+                elif eleccion == "misil":
+                    self.misil(all_sprites_list, mob_atack_list, player_position)      
         else:
             self.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_death.png')).convert_alpha()
             self.rect.y = 500
@@ -183,6 +196,16 @@ class Mob(pygame.sprite.Sprite):
         elif player_position < self.rect.x:
             self.direction = "left"
             self.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_atack.png')).convert_alpha()
+        all_sprites_list.add(self.mob_atack)
+        mob_atack_list.add(self.mob_atack)
+
+    def misil(self,all_sprites_list, mob_atack_list, player_position):
+        self.mob_atack = Proyectil(self.rect.x,self.rect.y,self.direction)
+        self.mob_atack.vector = "vertical"
+        self.mob_atack.target = player_position
+        
+        self.mob_atack.image = pygame.image.load(os.path.join('models','skill','conduit.png')).convert_alpha()
+        
         all_sprites_list.add(self.mob_atack)
         mob_atack_list.add(self.mob_atack)
     

@@ -45,6 +45,7 @@ class Game(object):
         self.proyectil_case = 0
         self.cargas_acumuladas = 0
         
+        
 
         # Creamos todas las listas donde estamos acumulando cosas
         self.proyectil_list = pygame.sprite.Group()
@@ -85,6 +86,9 @@ class Game(object):
         self.vidas_mob = self.mob.vida
 
         self.player = Player()
+        self.x = self.player.rect.x
+
+
         self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
 
         self.all_sprites_list.add(self.player)

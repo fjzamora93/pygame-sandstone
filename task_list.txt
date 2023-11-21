@@ -1,11 +1,6 @@
 1. Conseguir que la animación del jugador se mueva al atacar...
 2. Crear un segundo mob más débil a partir de la clase ya existente.
 4. Crear una pantalla dinámica. La pantalla se mueve según avanza el jugador.
-5. Crear un objeto coleccionable que dará mejoras.
-
-
-8. Mostrar más cosas en pantalla (la vida del mob, las habilidades...)
-
 
 
 Crear un boss
