@@ -1,4 +1,5 @@
-import random,sys,pygame
+import random,sys,pygame,os
+from class_proyectil import Proyectil
 #TEXTOS AL ACBAR LA PARTIDA
 ancho=900
 alto=554
@@ -25,6 +26,8 @@ def texto_puntuacion(screen, score):
     screen.blit(puntuacion,[710,10])
 
 def texto_cargas(screen, cargas_acumuladas):
-    font= pygame.font.SysFont("arial",50)
-    cargas_acumuladas = font.render(f"Cargas: {cargas_acumuladas}", True, white)
+    font= pygame.font.SysFont("arial",40)
+    proyectil_actual = pygame.image.load(os.path.join('models','skill','charges.png'))
+    screen.blit(proyectil_actual,[15,60])
+    cargas_acumuladas = font.render(f"    x {cargas_acumuladas}", True, white)
     screen.blit(cargas_acumuladas, [10, 50])

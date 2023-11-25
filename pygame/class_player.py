@@ -1,16 +1,13 @@
 import pygame,glob,random
 import os
-
+from class_proyectil import Proyectil
+from class_items import Items
 ancho = 900
 alto = 554
-
-
 carpeta= 'models/player/caminar'
 patron_png = os.path.join(carpeta, '*.png')
 player_caminar_list=[]
 player_caminar_list = glob.glob(patron_png)
-
-
 
 
 
@@ -36,6 +33,7 @@ class Player(pygame.sprite.Sprite):
         #Variables habilidades
         self.skill = None
         self.amount_charge = 0
+        self.proyectil_case=0
         self.guardia_activa = True
         
         
@@ -120,4 +118,66 @@ class Player(pygame.sprite.Sprite):
         elif not self.rect.colliderect(block_rect):
             self.colision_block= False
             self.is_falling = True
+
+    def controles_1(self,event,all_sprites_list,proyectil_list):
+        if event.type == pygame.KEYDOWN:
+            #Lógica de movimientos y salto
+            if event.key == pygame.K_d:
+                self.changespeed_x(5)
+            if event.key == pygame.K_a:
+                self.changespeed_x(-5)
+            if event.key == pygame.K_s:
+                self.proteccion()
+            
+            if not self.jumping:
+                if event.key == pygame.K_w:
+                    self.jumping = True
+            
+            #Lógica de ataques
+            if event.key == pygame.K_SPACE:
+                self.proyectil = Proyectil(self.rect.x,self.rect.y,self.direction)
+                self.proyectil.cargas_acumuladas = self.amount_charge
+                self.proyectil.skill = self.proyectil_case
+                self.atack(self.proyectil_case)
+                if self.proyectil.skill != 0:
+                    self.amount_charge -= 1
+                if self.amount_charge <= 0:
+                    self.amount_charge = 0
+                    self.proyectil.skill = 0
+                    self.atack(0)
+                    self.proyectil_case = 0
+                    self.autodestruccion = True
+            
+                self.proyectil.skill_set(all_sprites_list,proyectil_list)
+            
+            if event.key == pygame.K_q:
+                self.proyectil = Proyectil(self.rect.x,self.rect.y,self.direction)
+                self.proyectil.vector = "vertical"
+                self.proyectil.skill = 5
+                self.proyectil.skill_set(all_sprites_list,proyectil_list)
+             
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_d:
+                self.speed_x = 0
+            if event.key == pygame.K_a:
+                self.speed_x = 0
+
+
+    def clasificar_proyectil(self,all_sprites_list,item):      
+        self.amount_charge += 5
+        if item.list_path_random == "models/items\manzana.png":
+            self.vidas += 1
+        if item.list_path_random == "models/items\gema.png":
+            self.vidas += 0
+        if item.list_path_random == "models/items\pearl.png":
+            self.proyectil_case = 1
+        if item.list_path_random == "models/items\libro.png":
+            self.proyectil_case = 2
+        if item.list_path_random == "models/items\diamond.png":
+            self.proyectil_case = 3
+        if item.list_path_random == "models/items\emerald.png":
+            self.proyectil_case = 4
+            self.autodestruccion = False
+                
+        
 

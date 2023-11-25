@@ -21,9 +21,10 @@ numero_frames = 5
 
 
 #todo ANTES DE CLASS GAME, PODRÍAN IR TODAS LAS CLASES IMPORTADAS
-from class_generic import Proyectil
-from class_generic import Minion
-from class_generic import Mob
+
+from class_mobs import Minion
+from class_mobs import Mob
+from class_proyectil import Proyectil
 from class_player import Player
 from class_blocks import Block
 from class_blocks import obtener_ruta
@@ -40,12 +41,8 @@ class Game(object):
         self.n = 0
         self.contador_1 = 0
         self.nivel_dificultad = 1
-        
         self.autodestruccion= True
-        self.proyectil_case = 0
-        self.cargas_acumuladas = 0
-        
-        
+    
 
         # Creamos todas las listas donde estamos acumulando cosas
         self.proyectil_list = pygame.sprite.Group()
@@ -88,11 +85,9 @@ class Game(object):
         self.player = Player()
         self.x = self.player.rect.x
 
-
         self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
 
         self.all_sprites_list.add(self.player)
-   
         self.all_sprites_list.add(self.item)
     
         
@@ -102,52 +97,10 @@ class Game(object):
             if event.type == pygame.QUIT:
                 return True
             
-            if event.type == pygame.KEYDOWN:
-                #Lógica de movimientos y salto
-                if event.key == pygame.K_d:
-                    self.player.changespeed_x(5)
-                if event.key == pygame.K_a:
-                    self.player.changespeed_x(-5)
-                if event.key == pygame.K_s:
-                    self.player.proteccion()
-                
-                if not self.player.jumping:
-                    if event.key == pygame.K_w:
-                        self.player.jumping = True
-                
-
-                #Lógica de ataques
-                if event.key == pygame.K_SPACE:
-                    self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
-                    self.proyectil.cargas_acumuladas = self.cargas_acumuladas
-                    self.proyectil.skill = self.proyectil_case
-                    self.player.atack(self.proyectil_case)
-                    if self.proyectil.skill != 0:
-                        self.cargas_acumuladas -= 1
-                    if self.cargas_acumuladas <= 0:
-                        self.cargas_acumuladas = 0
-                        self.proyectil.skill = 0
-                        self.player.atack(0)
-                        self.proyectil_case = 0
-                        self.autodestruccion = True
-              
-                    self.proyectil.skill_set(self.all_sprites_list,self.proyectil_list)
-                
-                if event.key == pygame.K_q:
-                    self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
-                    self.proyectil.vector = "vertical"
-                    self.proyectil.skill = 5
-                    self.proyectil.skill_set(self.all_sprites_list,self.proyectil_list)
-             
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_d:
-                    self.player.speed_x = 0
-                if event.key == pygame.K_a:
-                    self.player.speed_x = 0
-            
+            self.player.controles_1(event,self.all_sprites_list,self.proyectil_list)
            
 
-             #CREAMOS UNA NUEVA LÓGICA PARA REINICIAR EL JUEGO
+            #CREAMOS UNA NUEVA LÓGICA PARA REINICIAR EL JUEGO
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.game_over:
                     if self.game_over:
@@ -165,12 +118,9 @@ class Game(object):
         if not self.game_over:
             self.all_sprites_list.update()
 
-            
             self.player.deteccion_colision(self.blocks_list,self.block.rect,self.block.rect.y,self.block.rect.top,self.block.rect.left,self.block.rect.right)
             self.player.deteccion_colision(self.platform_list,self.platform_2.rect,self.platform_2.rect.y,self.platform_2.rect.top,self.platform_2.rect.left,self.platform_2.rect.right)
 
-     
-      
             #!BOSS Y MOBS PRINCIPALES
             if self.score % 20 == 0:
                 if self.mob.vida <= 1:
@@ -213,12 +163,11 @@ class Game(object):
                 self.player.guardia_activa = False
                 self.player.image = pygame.image.load(os.path.join('models','player','player_meditate.png')).convert_alpha()
             
-
             #Puntuación y score    
             success_shot_list = pygame.sprite.groupcollide(self.proyectil_list, self.minion_list, self.autodestruccion,True)    
             for shot in success_shot_list:
                 self.score += 1
-                self.cargas_acumuladas += 1
+                self.player.amount_charge += 1
                 soundtrack.coins.play()
             
             
@@ -228,31 +177,15 @@ class Game(object):
                 sprite_a_eliminar.kill()
 
             if pygame.sprite.spritecollide(self.player,self.items_list, True):
-                self.cargas_acumuladas += 5
-                if self.item.list_path_random == "models/items\gema.png":
-                    self.player.vidas += 1
-                if self.item.list_path_random == "models/items\manzana.png":
-                    self.player.vidas += 0
-                if self.item.list_path_random == "models/items\pearl.png":
-                    self.proyectil_case = 1
-                if self.item.list_path_random == "models/items\libro.png":
-                    self.proyectil_case = 2
-                if self.item.list_path_random == "models/items\diamond.png":
-                    self.proyectil_case = 3
-                if self.item.list_path_random == "models/items\emerald.png":
-                    self.proyectil_case = 4
-                    self.autodestruccion = False
-                
+                self.player.clasificar_proyectil(self.all_sprites_list, self.item)
+
             if random.randint(0,500) == 500:
                 self.item = Items()
                 self.all_sprites_list.add(self.item)
-
             self.items_list.add(self.item)
-                
             if pygame.sprite.spritecollide(self.player,self.items_list, True):
                 self.item.kill()
                     
-
 
             #!Condición de GAME OVER
             if self.player.vidas == 0:
@@ -280,9 +213,7 @@ class Game(object):
 
         #TODO Bloques en pantalla
         
-        
-
-
+    
 
         #! PANTALLA DE FIN DEL JUEGO
         if self.game_over and len(self.minion_list) == 0:
@@ -296,7 +227,8 @@ class Game(object):
             textos_pantalla.texto_puntuacion(screen, self.score)
             stats.hearts(screen, self.player.vidas)
             stats.hearts_mob(screen,self.mob.vida)
-            textos_pantalla.texto_cargas(screen, self.cargas_acumuladas)
+            textos_pantalla.texto_cargas(screen, self.player.amount_charge)
+            
 
             #!Este de aquí es obligatorio para actualizar lo que se ve en pantalla
             self.all_sprites_list.draw(screen) 
