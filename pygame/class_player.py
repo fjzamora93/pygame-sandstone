@@ -56,8 +56,15 @@ class Player(pygame.sprite.Sprite):
             self.speed_y = 5
         self.rect.x += self.speed_x
         self.rect.y += self.speed_y
+
+        #LÍMITES DEL CAMPA
         if self.rect.y > 480:
             self.rect.y = 480
+        if self.rect.x < 10:
+            self.rect.x = 10
+        if self.rect.x > 850:
+            self.rect.x = 850
+
         # Lógica salto
         if self.jumping:
             self.is_falling = True
@@ -168,7 +175,7 @@ class Player(pygame.sprite.Sprite):
         if item.list_path_random == "models/items\manzana.png":
             self.vidas += 1
         if item.list_path_random == "models/items\gema.png":
-            self.vidas += 0
+            self.vidas += 2
         if item.list_path_random == "models/items\pearl.png":
             self.proyectil_case = 1
         if item.list_path_random == "models/items\libro.png":

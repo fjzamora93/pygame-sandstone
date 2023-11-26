@@ -4,7 +4,7 @@ También aprendemos a crear las primeras clases
 """
 
 
-import pygame,random
+import pygame,random,os
 screen=pygame.display.set_mode([735,459])
 clock = pygame.time.Clock()
 done=False
@@ -23,7 +23,7 @@ blue=(0,0,255)
 class Corazon(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("corazon.png").convert() 
+        self.image = pygame.image.load(os.path.join('models', 'player', 'player.png')).convert_alpha() 
         self.image.set_colorkey(black)
         self.rect = self.image.get_rect() 
     def update(self):
@@ -48,8 +48,7 @@ for i in range(20):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("player.png").convert()
-        self.image.set_colorkey(black)
+        self.image = pygame.image.load(os.path.join('models', 'player', 'player.png')).convert_alpha()
         self.rect = self.image.get_rect()
     
     def update(self):

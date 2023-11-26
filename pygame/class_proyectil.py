@@ -54,6 +54,9 @@ class Proyectil(pygame.sprite.Sprite):
                 self.rect.x += self.speed
             if self.direction == "left":
                 self.rect.x -= self.speed
+            if self.skill == 3:
+                if self.rect.x > self.pos_origen +450 or self.rect.x  < self.pos_origen-450:
+                    self.kill()
 
         elif self.vector == "melee":
             if self.direction == "right":

@@ -22,6 +22,7 @@ class Items(pygame.sprite.Sprite):
         self.rect.x = random.randrange(ancho)
         self.rect.y = random.randrange(350, 450)
         self.bonificacion = None
+        self.autodestruccion = False
 
     def update(self):
         pass

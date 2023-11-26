@@ -126,10 +126,13 @@ class Game(object):
             if self.score % 20 == 0:
                 if self.mob.vida <= 1:
                     self.mob.kill()
-                    self.mob = Mob()      
-            self.mob.spawn(self.player.rect.x, self.player.rect.y)
-            self.mob.accion_aleatoria(self.all_sprites_list, self.mob_atack_list,self.player.rect.x)
-            self.mob_list.add(self.mob)
+                    self.mob = Mob()
+                    self.mob.aparicion = False      
+            if self.score > 10:
+                self.mob.spawn(self.player.rect.x, self.player.rect.y)
+                self.mob.accion_aleatoria(self.all_sprites_list, self.mob_atack_list,self.player.rect.x)
+                self.mob_list.add(self.mob)
+
             if pygame.Rect.colliderect(self.player.rect, self.mob.rect) and self.mob.vida > 0:
                 if self.mob.temporizador == 10: #ralentiza ticks para que el mob haga menos daño por colision
                     self.player.vidas -=1
@@ -179,14 +182,17 @@ class Game(object):
                 sprite_a_eliminar.kill()
 
             if pygame.sprite.spritecollide(self.player,self.items_list, True):
-                self.player.clasificar_proyectil(self.all_sprites_list, self.item)
+                if self.item.autodestruccion == False:
+                    self.player.clasificar_proyectil(self.all_sprites_list, self.item)
+                    self.item.autodestruccion = True
+                    self.item.kill()
 
             if random.randint(0,500) == 500:
                 self.item = Items()
                 self.all_sprites_list.add(self.item)
             self.items_list.add(self.item)
-            if pygame.sprite.spritecollide(self.player,self.items_list, True):
-                self.item.kill()
+            
+                
                     
 
             #!Condición de GAME OVER
@@ -204,12 +210,16 @@ class Game(object):
             else:
                 self.n = 0
         self.background = obtener_background_path()
-        background= pygame.image.load(self.background[8]).convert()
+        background= pygame.image.load(self.background[9]).convert_alpha()
+        suelo = pygame.image.load(os.path.join('background','mountain','suelo_2.png')).convert_alpha()
 
         
-        self.camera += (self.player.rect.x - self.camera - ancho //2)/100
+        
+        #En la siguiente linea: la posición del jugador se le resta la cámara (0) y el ancho (si dividimos ancho//2 me quedo sin pantalla!!!)
+        self.camera += (self.player.rect.x/2 - self.camera - ancho)
         screen.blit(background, [-900-self.camera, 0])
-        self.x += self.player.speed_x // 10
+
+        screen.blit(suelo, [0,520])
 
 
 
@@ -234,7 +244,8 @@ class Game(object):
         if not self.game_over:
             textos_pantalla.texto_puntuacion(screen, self.score)
             stats.hearts(screen, self.player.vidas)
-            stats.hearts_mob(screen,self.mob.vida)
+            if self.mob.aparicion == True:
+                stats.hearts_mob(screen,self.mob.vida)
             textos_pantalla.texto_cargas(screen, self.player.amount_charge)
             
 
@@ -254,7 +265,7 @@ def main():
         done = game.process_events()
         game.run_logic()
         game.display_frame(screen)
-        clock.tick(50)
+        clock.tick(60)
     pygame.quit()
 
 if __name__ == "__main__":
