@@ -1,4 +1,4 @@
-import pygame, random, sys, os
+import pygame, random, sys, os,glob
 import soundtrack
 
 ancho=900
@@ -17,6 +17,7 @@ class Proyectil(pygame.sprite.Sprite):
         self.pos_origen = self.rect.x
         self.rect.y = player_y + 10
         self.direction = direction
+        self.contador = 0
 
         #Condiciones de los ataques
         self.skill = 0 
@@ -27,17 +28,21 @@ class Proyectil(pygame.sprite.Sprite):
 
         #Solo para el mob (de ahí que esté en negativo)
         self.target = -10
+    
+        #Rutas de imágenes
+        self.carpeta = 'models/particle/explosion'
+        self.proyectil_path_png = self.obtener_ruta()
         
 
         
     def update(self):
         
-        if self.vector == "vertical": #SUBIDA DEL MISIL
+        
+        if self.vector == "vertical": 
             self.rect.y -= self.speed
             if self.rect.y < 0:
                 self.vector = "caida"
                 print ("Condición 1")
-        
         if self.vector == "caida":
             self.rect.x = self.target
             self.rect.y += 10
@@ -65,10 +70,15 @@ class Proyectil(pygame.sprite.Sprite):
 
         if self.rect.x > ancho or self.rect.x < 0 or self.rect.y < -30 or self.rect.y > alto:
             self.kill()
+        
+        #ACTUALIZACIÓN DE IMAGEN
+        self.contador += 1
+        if self.contador > 49:
+            self.contador = 0
+        if self.skill == 3:
+            self.image = pygame.image.load(os.path.join(self.proyectil_path_png[self.contador//10])).convert_alpha()
 
     def skill_set(self,all_sprites_list,proyectil_list):
-        
-      
         if self.skill == 0 or self.cargas_acumuladas <= 0:
             self.image = pygame.image.load(os.path.join('models','skill','sweep_1.png')).convert_alpha()
             soundtrack.sword.play()
@@ -113,6 +123,11 @@ class Proyectil(pygame.sprite.Sprite):
             self.vector = "static"
         
             
-
         all_sprites_list.add(self)
         proyectil_list.add(self)
+
+    def obtener_ruta(self):
+        self.patron_png = os.path.join(self.carpeta, '*.png')
+        self.proyectil_path_png=[]
+        self.proyectil_path_png = glob.glob(self.patron_png)
+        return self.proyectil_path_png

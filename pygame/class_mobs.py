@@ -113,6 +113,8 @@ class Mob(pygame.sprite.Sprite):
             else:
                 self.jump_count = 10
                 self.jumping = False
+        if self.vida < 1:
+            self.speed_x = 0
     
     
          

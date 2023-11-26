@@ -42,6 +42,7 @@ class Game(object):
         self.contador_1 = 0
         self.nivel_dificultad = 1
         self.autodestruccion= True
+        self.camera = 0
     
 
         # Creamos todas las listas donde estamos acumulando cosas
@@ -166,6 +167,7 @@ class Game(object):
             #Puntuación y score    
             success_shot_list = pygame.sprite.groupcollide(self.proyectil_list, self.minion_list, self.autodestruccion,True)    
             for shot in success_shot_list:
+                
                 self.score += 1
                 self.player.amount_charge += 1
                 soundtrack.coins.play()
@@ -202,10 +204,16 @@ class Game(object):
             else:
                 self.n = 0
         self.background = obtener_background_path()
-        background= pygame.image.load(self.background[self.n]).convert()
-        background_resized=pygame.transform.scale(background, (ancho, alto))
-        screen.blit(background_resized, [0,0])
-       
+        background= pygame.image.load(self.background[8]).convert()
+
+        
+        self.camera += (self.player.rect.x - self.camera - ancho //2)/100
+        screen.blit(background, [-900-self.camera, 0])
+        self.x += self.player.speed_x // 10
+
+
+
+
        #TODO Animaciones en movimiento propias del jugador
         if self.player.speed_x > 0:
             self.player.image=pygame.image.load(self.player.lista_caminar[self.n]).convert_alpha()
