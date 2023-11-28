@@ -1,5 +1,5 @@
 import pygame, random, sys, os,glob
-import soundtrack
+import class_soundtrack
 
 ancho=900
 alto=554

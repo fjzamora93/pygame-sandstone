@@ -8,7 +8,7 @@ Librería de artes gratis: https://opengameart.org/content/lpc-medieval-fantasy-
 
 
 import pygame, random, os
-import soundtrack,textos_pantalla,stats
+import class_soundtrack,textos_pantalla,stats
 pygame.mixer.init() #Para reproducir sonidos, guapi
 
 
@@ -30,12 +30,11 @@ from class_blocks import Block
 from class_blocks import obtener_ruta
 from background import obtener_background_path
 from class_items import Items
-
+from class_soundtrack import Soundtrack
 
 class Game(object):
     def __init__(self):
         # Creamos una instancia de game over FALSE
-        soundtrack.ambiente_sunset.play()
         self.game_over = False
         self.score = 0
         self.n = 0
@@ -55,13 +54,11 @@ class Game(object):
         self.blocks_list =pygame.sprite.Group()
         self.items_list = pygame.sprite.Group()
         self.platform_list = pygame.sprite.Group()
-
         
         for i in range(10):
             self.minion = Minion()
             self.all_sprites_list.add(self.minion)  
             self.minion_list.add(self.minion)
-   
 
         for i in range(8):
             self.block = Block() 
@@ -81,7 +78,12 @@ class Game(object):
         #!INICIALIZACIÓN DE ENTIDADES
         self.item = Items()
         self.mob = Mob()
-        self.vidas_mob = self.mob.vida
+
+        #Inicializamos la música
+        self.soundtrack = Soundtrack()
+        self.soundtrack.play_music(class_soundtrack.fondo)
+
+   
 
         self.player = Player()
         self.x = self.player.rect.x
@@ -91,16 +93,16 @@ class Game(object):
         self.all_sprites_list.add(self.player)
         self.all_sprites_list.add(self.item)
     
-        
  
-    def process_events(self):
+    def process_events(self,screen):
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return True
-            
+            #soundtrack.control_audio(event,screen,soundtrack)
             self.player.controles_1(event,self.all_sprites_list,self.proyectil_list)
-           
-
+            self.soundtrack.control_audio(event,screen)
+ 
             #CREAMOS UNA NUEVA LÓGICA PARA REINICIAR EL JUEGO
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.game_over:
@@ -162,7 +164,7 @@ class Game(object):
             if not self.player.guardia_activa:
                 for _ in player_hit_list:
                     self.player.vidas -= 1
-                    soundtrack.daño_recibido.play()
+                    class_soundtrack.daño_recibido.play()
             if player_hit_list:
                 self.player.guardia_activa = False
                 self.player.image = pygame.image.load(os.path.join('models','player','player_meditate.png')).convert_alpha()
@@ -173,7 +175,7 @@ class Game(object):
                 
                 self.score += 1
                 self.player.amount_charge += 1
-                soundtrack.coins.play()
+                class_soundtrack.coins.play()
             
             
             #! BONIFICACIONES Y CONTROL DE ATAQUE
@@ -182,29 +184,11 @@ class Game(object):
                 sprite_a_eliminar.kill()
 
             if pygame.sprite.spritecollide(self.player,self.items_list, True):
-<<<<<<< Updated upstream
                 if self.item.autodestruccion == False:
                     self.player.clasificar_proyectil(self.all_sprites_list, self.item)
                     self.item.autodestruccion = True
                     self.item.kill()
 
-=======
-                self.cargas_acumuladas += 5
-                if self.item.list_path_random == "models/items\gema.png":
-                    self.player.vidas += 1
-                if self.item.list_path_random == "models/items\manzana.png":
-                    self.player.vidas += 5
-                if self.item.list_path_random == "models/items\pearl.png":
-                    self.proyectil_case = 1
-                if self.item.list_path_random == "models/items\libro.png":
-                    self.proyectil_case = 2
-                if self.item.list_path_random == "models/items\diamond.png":
-                    self.proyectil_case = 3
-                if self.item.list_path_random == "models/items\emerald.png":
-                    self.proyectil_case = 4
-                    self.autodestruccion = False
-                
->>>>>>> Stashed changes
             if random.randint(0,500) == 500:
                 self.item = Items()
                 self.all_sprites_list.add(self.item)
@@ -280,7 +264,7 @@ def main():
     clock = pygame.time.Clock()
     game = Game()
     while not done:
-        done = game.process_events()
+        done = game.process_events(screen)
         game.run_logic()
         game.display_frame(screen)
         clock.tick(60)

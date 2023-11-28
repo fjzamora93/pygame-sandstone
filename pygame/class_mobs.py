@@ -1,5 +1,5 @@
 import pygame, random, sys, os
-import soundtrack
+import class_soundtrack
 from class_proyectil import Proyectil
 
 ancho=900

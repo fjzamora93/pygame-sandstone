@@ -1,5 +1,5 @@
 import pygame, random, sys, os,glob
-import soundtrack
+import class_soundtrack
 
 ancho=900
 alto=554
@@ -84,34 +84,34 @@ class Proyectil(pygame.sprite.Sprite):
     def skill_set(self,all_sprites_list,proyectil_list):
         if self.skill == 0 or self.cargas_acumuladas <= 0:
             self.image = pygame.image.load(os.path.join('models','skill','sweep_1.png')).convert_alpha()
-            soundtrack.sword.play()
+            class_soundtrack.sword.play()
 
         if self.skill == 1 and self.cargas_acumuladas > 0:    
             self.image = pygame.image.load(os.path.join('models','skill','arrow.png')).convert_alpha()
             self.speed_y += 0.5
             self.speed = 10
-            soundtrack.arco.play()
+            class_soundtrack.arco.play()
             self.vector = "horizontal"
             if self.direction == "left":
                 self.image = pygame.image.load(os.path.join('models','skill','arrow_left.png')).convert_alpha()
 
         if self.skill == 2 and self.cargas_acumuladas > 0:    
             self.image = pygame.image.load(os.path.join('models','skill','snowball.png')).convert_alpha()
-            soundtrack.ice.play()
+            class_soundtrack.ice.play()
             self.vector = "horizontal"
             self.speed = 10
             self.limite = 5
           
         if self.skill == 3 and self.cargas_acumuladas > 0:         
             self.image = pygame.image.load(os.path.join('models','skill','fireball.png')).convert_alpha()
-            soundtrack.atack_fireball_1.play()
+            class_soundtrack.atack_fireball_1.play()
             self.vector = "horizontal"
             self.speed = 10
             self.limite = 10
 
         if self.skill == 4 and self.cargas_acumuladas > 0:    
             self.image = pygame.image.load(os.path.join('models','skill','sonic.png')).convert_alpha()
-            soundtrack.efecto_magia_1.play()
+            class_soundtrack.efecto_magia_1.play()
             self.vector = "horizontal"
             self.speed = 5
             self.rect.y -= 20
@@ -119,7 +119,7 @@ class Proyectil(pygame.sprite.Sprite):
 
         if self.skill == 5:
             self.image = pygame.image.load(os.path.join('models','skill','rocket.png')).convert_alpha()
-            soundtrack.atack_laser.play()
+            class_soundtrack.atack_laser.play()
 
         if self.skill == 6:
             self.image= pygame.image.load(os.path.join('models', 'skill', 'buble.png')).convert_alpha()
