@@ -92,7 +92,7 @@ class Game(object):
         self.all_sprites_list.add(self.item)
     
         
-
+ 
     def process_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -182,11 +182,29 @@ class Game(object):
                 sprite_a_eliminar.kill()
 
             if pygame.sprite.spritecollide(self.player,self.items_list, True):
+<<<<<<< Updated upstream
                 if self.item.autodestruccion == False:
                     self.player.clasificar_proyectil(self.all_sprites_list, self.item)
                     self.item.autodestruccion = True
                     self.item.kill()
 
+=======
+                self.cargas_acumuladas += 5
+                if self.item.list_path_random == "models/items\gema.png":
+                    self.player.vidas += 1
+                if self.item.list_path_random == "models/items\manzana.png":
+                    self.player.vidas += 5
+                if self.item.list_path_random == "models/items\pearl.png":
+                    self.proyectil_case = 1
+                if self.item.list_path_random == "models/items\libro.png":
+                    self.proyectil_case = 2
+                if self.item.list_path_random == "models/items\diamond.png":
+                    self.proyectil_case = 3
+                if self.item.list_path_random == "models/items\emerald.png":
+                    self.proyectil_case = 4
+                    self.autodestruccion = False
+                
+>>>>>>> Stashed changes
             if random.randint(0,500) == 500:
                 self.item = Items()
                 self.all_sprites_list.add(self.item)
