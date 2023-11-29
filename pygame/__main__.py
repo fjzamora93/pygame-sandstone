@@ -15,6 +15,7 @@ pygame.mixer.init() #Para reproducir sonidos, guapi
 
 ancho = 900
 alto = 554
+screen= pygame.display.set_mode([ancho,alto])
 black = (0, 0, 0)
 white = (255, 255, 255)
 temporizador = 10

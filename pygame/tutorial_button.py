@@ -67,34 +67,8 @@ class Button():
 button_surface= pygame.image.load(os.path.join("models", "menu","map.png"))
 button = Button(button_surface,400,300, "click me!")
                                                                                         
-        
 
-
-class Corazon(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.image.load(os.path.join('models', 'player', 'player.png')).convert_alpha() 
-        self.image.set_colorkey(black)
-        self.rect = self.image.get_rect() 
-    def update(self):
-        self.rect.y +=1
-        if self.rect.y > 459:
-            self.rect.y = -10
-            self.rect.x = random.randrange(735)
-
-
-corazon_list = pygame.sprite.Group()
 all_sprite_list = pygame.sprite.Group()
-
-for i in range(20):
-    corazon=Corazon()
-    corazon.rect.x = random.randrange (700)
-    corazon.rect.y = random.randrange (400)
-    corazon_list.add(corazon)
-    all_sprite_list.add(corazon)
-
-
-
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -105,37 +79,24 @@ class Player(pygame.sprite.Sprite):
         mouse_pos = pygame.mouse.get_pos()
         player.rect.x= mouse_pos[0]
         player.rect.y= mouse_pos[1]
-
 player= Player()
 all_sprite_list.add(player)
-
-
-
 
 
 while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
-
-
-
     screen.fill(black)
 
-    all_sprite_list.draw(screen) 
+
+
     all_sprite_list.update()
     button.update()
     button.changeColor(pygame.mouse.get_pos())
+
+    all_sprite_list.draw(screen) 
     pygame.display.update()
-   
-
-    corazon_hit_list= pygame.sprite.spritecollide(player,corazon_list, True)
-
-    for corazon in corazon_hit_list:
-        score += 1
-        print (score)
-
-
     pygame.display.flip()
     clock.tick(60)
 pygame.quit()
