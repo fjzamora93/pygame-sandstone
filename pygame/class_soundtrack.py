@@ -1,4 +1,5 @@
 import pygame,os
+
 pygame.mixer.init()
 
 
@@ -49,7 +50,6 @@ class Soundtrack(pygame.sprite.Sprite):
         self.rect.y = 20
         self.volume= "on"
         
-
     def update(self):
         if self.volume == "on":
             self.image = pygame.image.load(os.path.join('models','menu','audio_on.png'))

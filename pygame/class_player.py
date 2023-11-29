@@ -102,7 +102,7 @@ class Player(pygame.sprite.Sprite):
                 self.image = pygame.image.load(os.path.join('models','player','player_proteccion.png')).convert_alpha()
 
     def proteccion(self):
-       
+        
         self.image = pygame.image.load(os.path.join('models','player','player_proteccion.png')).convert_alpha()
         self.guardia_activa = True
         print ("guardia activada")

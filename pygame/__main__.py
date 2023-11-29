@@ -9,6 +9,7 @@ Librería de artes gratis: https://opengameart.org/content/lpc-medieval-fantasy-
 
 import pygame, random, os
 import class_soundtrack,textos_pantalla,stats
+from tkinter import *
 pygame.mixer.init() #Para reproducir sonidos, guapi
 
 
@@ -31,6 +32,7 @@ from class_blocks import obtener_ruta
 from background import obtener_background_path
 from class_items import Items
 from class_soundtrack import Soundtrack
+from class_button import Button
 
 class Game(object):
     def __init__(self):
@@ -47,7 +49,7 @@ class Game(object):
         # Creamos todas las listas donde estamos acumulando cosas
         self.proyectil_list = pygame.sprite.Group()
         self.minion_list = pygame.sprite.Group()
-        self.all_sprites_list = pygame.sprite.Group()
+        self.sprites = pygame.sprite.Group()
         self.mob_list =pygame.sprite.Group()
         self.mob_atack_list = pygame.sprite.Group()
         self.fuegos_cruzados = pygame.sprite.Group()
@@ -57,13 +59,13 @@ class Game(object):
         
         for i in range(10):
             self.minion = Minion()
-            self.all_sprites_list.add(self.minion)  
+            self.sprites.add(self.minion)  
             self.minion_list.add(self.minion)
 
         for i in range(8):
             self.block = Block() 
             self.block.rect.y = 300
-            self.all_sprites_list.add(self.block)
+            self.sprites.add(self.block)
             self.blocks_list.add(self.block)
        
         for i in range(2):
@@ -71,7 +73,7 @@ class Game(object):
             self.platform_2.carpeta = 'models/blocks/big-block'
             self.platform_2.obtener_ruta()
             self.platform_2.rect.y = 400
-            self.all_sprites_list.add(self.platform_2)
+            self.sprites.add(self.platform_2)
             self.platform_list.add(self.platform_2)
        
 
@@ -90,17 +92,17 @@ class Game(object):
 
         self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
 
-        self.all_sprites_list.add(self.player)
-        self.all_sprites_list.add(self.item)
+        self.sprites.add(self.player)
+        self.sprites.add(self.item)
+        self.sprites.add(self.soundtrack)
     
  
     def process_events(self,screen):
-        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return True
             #soundtrack.control_audio(event,screen,soundtrack)
-            self.player.controles_1(event,self.all_sprites_list,self.proyectil_list)
+            self.player.controles_1(event,self.sprites,self.proyectil_list)
             self.soundtrack.control_audio(event,screen)
  
             #CREAMOS UNA NUEVA LÓGICA PARA REINICIAR EL JUEGO
@@ -117,9 +119,37 @@ class Game(object):
         # Se me olvidó qué es esto
         return False
 
+    """
+    NECESITO CREAR UNA CLASE "BUTTON" ANTES DE PODER UTILIZAR ESTO DE AQUÍ
+    def main_menu(self,screen):
+        pygame.display.set_caption("Menu")
+
+        while True:
+            screen.blit(black,(0,0))
+
+            MENU_MOUSE_POS = pygame.mouse.get_pos()
+
+            MENU_TEXT = pygame.font.get_font(100).render("MAIN MENU", True, "#b68f40")
+            MENU_RECT = MENU_TEXT.get_rect(center=(540,100))
+
+            PLAY_BUTTON = Button(image = pygame.image.load(os.path.join("models", "menu", "map.png"), pos = (640, 250),
+                                                            text_imput= "PLAY",font=pygame.font.get_font(75), base_color="#d7fcd4", hovering_color="white"))
+
+            QUIT_BUTTON = Button(image = pygame.image.load(os.path.join("models", "menu", "mission.png"), pos = (640, 250),
+                                                            text_imput= "PLAY",font=pygame.font.get_font(75), base_color="#d7fcd4", hovering_color="white"))
+        
+            screen.blit(MENU_TEXT, MENU_RECT)
+
+            for button in [PLAY_BUTTON, QUIT_BUTTON]:
+                button.changecolor(MENU_MOUSE_POS)
+                button.update(screen)
+
+    """
+
+
     def run_logic(self):
         if not self.game_over:
-            self.all_sprites_list.update()
+            self.sprites.update()
 
             self.player.deteccion_colision(self.blocks_list,self.block.rect,self.block.rect.y,self.block.rect.top,self.block.rect.left,self.block.rect.right)
             self.player.deteccion_colision(self.platform_list,self.platform_2.rect,self.platform_2.rect.y,self.platform_2.rect.top,self.platform_2.rect.left,self.platform_2.rect.right)
@@ -132,7 +162,7 @@ class Game(object):
                     self.mob.aparicion = False      
             if self.score > 10:
                 self.mob.spawn(self.player.rect.x, self.player.rect.y)
-                self.mob.accion_aleatoria(self.all_sprites_list, self.mob_atack_list,self.player.rect.x)
+                self.mob.accion_aleatoria(self.sprites, self.mob_atack_list,self.player.rect.x)
                 self.mob_list.add(self.mob)
 
             if pygame.Rect.colliderect(self.player.rect, self.mob.rect) and self.mob.vida > 0:
@@ -154,7 +184,7 @@ class Game(object):
                     self.minion_1.speed += 0
                     self.minion_1.image = pygame.image.load(os.path.join('models','skill','pointed_dripstone.png'))
                     self.minion_list.add(self.minion_1)
-                    self.all_sprites_list.add(self.minion_1)
+                    self.sprites.add(self.minion_1)
 
             #Daño y pérdida de vida
             
@@ -185,13 +215,13 @@ class Game(object):
 
             if pygame.sprite.spritecollide(self.player,self.items_list, True):
                 if self.item.autodestruccion == False:
-                    self.player.clasificar_proyectil(self.all_sprites_list, self.item)
+                    self.player.clasificar_proyectil(self.sprites, self.item)
                     self.item.autodestruccion = True
                     self.item.kill()
 
             if random.randint(0,500) == 500:
                 self.item = Items()
-                self.all_sprites_list.add(self.item)
+                self.sprites.add(self.item)
             self.items_list.add(self.item)
             
                 
@@ -252,7 +282,7 @@ class Game(object):
             
 
             #!Este de aquí es obligatorio para actualizar lo que se ve en pantalla
-            self.all_sprites_list.draw(screen) 
+            self.sprites.draw(screen) 
             
         pygame.display.flip()
 

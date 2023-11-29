@@ -1,5 +1,7 @@
 import pygame, random, sys, os,glob
 import class_soundtrack
+import mis_funciones
+import mis_sprites
 
 ancho=900
 alto=554
@@ -10,6 +12,7 @@ class Proyectil(pygame.sprite.Sprite):
     def __init__(self,player_x,player_y,direction):
         super().__init__()
         self.image = pygame.image.load(os.path.join('models','skill','sweep_1.png')).convert_alpha()
+        self.image_list = []
         self.objeto = None      
         self.vector= "melee"
         self.rect = self.image.get_rect()
@@ -20,24 +23,23 @@ class Proyectil(pygame.sprite.Sprite):
         self.contador = 0
 
         #Condiciones de los ataques
-        self.skill = 0 
+        self.skill = 0  #El mob tiene la skill en neativo -1,-2,-3
         self.speed = 5
         self.speed_y = 0
-        self.limite = 3
+        self.limite = 1
         self.cargas_acumuladas = 0
 
         #Solo para el mob (de ahí que esté en negativo)
         self.target = -10
     
         #Rutas de imágenes
-        self.carpeta = 'models/particle/explosion'
-        self.proyectil_path_png = self.obtener_ruta()
+        self.explosion = 'models/particle/explosion'
+        self.sonic = 'models/particle/sonic'
+        self.proyectil_path_png = self.obtener_ruta(self.explosion)
         
 
         
     def update(self):
-        
-        
         if self.vector == "vertical": 
             self.rect.y -= self.speed
             if self.rect.y < 0:
@@ -55,7 +57,7 @@ class Proyectil(pygame.sprite.Sprite):
             if self.direction == "left":
                 self.rect.x -= self.speed
             if self.skill == 3:
-                if self.rect.x > self.pos_origen +450 or self.rect.x  < self.pos_origen-450:
+                if self.rect.x > self.pos_origen +350 or self.rect.x  < self.pos_origen-350:
                     self.kill()
 
         elif self.vector == "melee":
@@ -63,59 +65,64 @@ class Proyectil(pygame.sprite.Sprite):
                 self.rect.x += self.speed 
             elif self.direction == "left":
                 self.rect.x -= self.speed
-            if self.rect.x > self.pos_origen +100 or self.rect.x  < self.pos_origen-120:
+            if self.rect.x > self.pos_origen +80 or self.rect.x  < self.pos_origen-100:
                 self.kill()
         
+        #PARA EL ESCUDO
         elif self.vector == "static":
             self.rect.x = self.rect.x
             self.rect.y = self.rect.y
-            
-
         if self.rect.x > ancho or self.rect.x < 0 or self.rect.y < -30 or self.rect.y > alto:
             self.kill()
         
-        #ACTUALIZACIÓN DE IMAGEN
+        #!ACTUALIZACIONES DE IMAGEN
         self.contador += 1
-        if self.contador > 49:
+        if self.contador >= 24:
             self.contador = 0
-        if self.skill == 3:
-            self.image = pygame.image.load(os.path.join(self.proyectil_path_png[self.contador//10])).convert_alpha()
+        
+        if self.skill == 4 or self.skill == 2 or self.skill == 0 or self.skill == 3:
+            self.image = pygame.image.load(os.path.join(self.image_list [self.contador//3])).convert_alpha()
+          
+
 
     def skill_set(self,all_sprites_list,proyectil_list):
         if self.skill == 0 or self.cargas_acumuladas <= 0:
-            self.image = pygame.image.load(os.path.join('models','skill','sweep_1.png')).convert_alpha()
+            self.image_list = mis_funciones.obtener_ruta(mis_sprites.sword)
             class_soundtrack.sword.play()
 
         if self.skill == 1 and self.cargas_acumuladas > 0:    
             self.image = pygame.image.load(os.path.join('models','skill','arrow.png')).convert_alpha()
             self.speed_y += 0.5
             self.speed = 10
+            self.limite = 5
             class_soundtrack.arco.play()
             self.vector = "horizontal"
             if self.direction == "left":
                 self.image = pygame.image.load(os.path.join('models','skill','arrow_left.png')).convert_alpha()
 
         if self.skill == 2 and self.cargas_acumuladas > 0:    
-            self.image = pygame.image.load(os.path.join('models','skill','snowball.png')).convert_alpha()
+            self.image_list = mis_funciones.obtener_ruta(mis_sprites.ice)
             class_soundtrack.ice.play()
             self.vector = "horizontal"
-            self.speed = 10
-            self.limite = 5
-          
+            self.speed = 15
+            self.limite = self.cargas_acumuladas
+        
+
         if self.skill == 3 and self.cargas_acumuladas > 0:         
-            self.image = pygame.image.load(os.path.join('models','skill','fireball.png')).convert_alpha()
+            self.image_list = mis_funciones.obtener_ruta(mis_sprites.explosion)
             class_soundtrack.atack_fireball_1.play()
             self.vector = "horizontal"
-            self.speed = 10
-            self.limite = 10
+            self.speed = 15
+            self.limite = 1
 
+        #! FORMA 2 DE OBTENER UN PATH DE IMAGEN, CREO QUE QUEDA MÁS LIMPIO
         if self.skill == 4 and self.cargas_acumuladas > 0:    
-            self.image = pygame.image.load(os.path.join('models','skill','sonic.png')).convert_alpha()
+            self.image_list = mis_funciones.obtener_ruta(mis_sprites.sonic)
             class_soundtrack.efecto_magia_1.play()
             self.vector = "horizontal"
-            self.speed = 5
+            self.speed = 10
             self.rect.y -= 20
-            self.limite = 20
+            self.limite = 5
 
         if self.skill == 5:
             self.image = pygame.image.load(os.path.join('models','skill','rocket.png')).convert_alpha()
@@ -129,8 +136,8 @@ class Proyectil(pygame.sprite.Sprite):
         all_sprites_list.add(self)
         proyectil_list.add(self)
 
-    def obtener_ruta(self):
-        self.patron_png = os.path.join(self.carpeta, '*.png')
+    def obtener_ruta(self,ruta):
+        self.patron_png = os.path.join(ruta, '*.png')
         self.proyectil_path_png=[]
         self.proyectil_path_png = glob.glob(self.patron_png)
         return self.proyectil_path_png
