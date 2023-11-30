@@ -34,6 +34,7 @@ from background import obtener_background_path
 from class_items import Items
 from class_soundtrack import Soundtrack
 from class_button import Button
+from class_mouse import Mouse
 
 class Game(object):
     def __init__(self):
@@ -81,6 +82,8 @@ class Game(object):
         #!INICIALIZACIÓN DE ENTIDADES
         self.item = Items()
         self.mob = Mob()
+        self.button = Button(500,100, "Menu")
+        self.mouse = Mouse()
 
         #Inicializamos la música
         self.soundtrack = Soundtrack()
@@ -93,15 +96,25 @@ class Game(object):
 
         self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
 
+        self.sprites.add(self.mouse)
         self.sprites.add(self.player)
         self.sprites.add(self.item)
         self.sprites.add(self.soundtrack)
-    
+       
+        #Ocultamos cursor
+        pygame.mouse.set_visible(False)
  
     def process_events(self,screen):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return True
+            
+            #CONTROL DEL RATÓN Y BOTÓN DE MENÚ
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # 1 representa el botón izquierdo del ratón
+                mouse_position = pygame.mouse.get_pos()
+                if self.button.checkForInput(mouse_position):
+                    print("¡Segundo control de botón presionado!")
+
             #soundtrack.control_audio(event,screen,soundtrack)
             self.player.controles_1(event,self.sprites,self.proyectil_list)
             self.soundtrack.control_audio(event,screen)
@@ -254,6 +267,9 @@ class Game(object):
 
         screen.blit(suelo, [0,520])
 
+        #BOTONES DEL MENÚ
+        self.button.update()
+        self.button.changeColor(pygame.mouse.get_pos())
 
 
 
@@ -299,6 +315,7 @@ def main():
         game.run_logic()
         game.display_frame(screen)
         clock.tick(60)
+    #pygame.mouse.set_visible(True) Supuestamente esto es una buena práctica.. y no lo veo uso.
     pygame.quit()
 
 if __name__ == "__main__":
