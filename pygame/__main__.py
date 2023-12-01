@@ -39,6 +39,7 @@ from class_mouse import Mouse
 class Game(object):
     def __init__(self):
         # Creamos una instancia de game over FALSE
+        pygame.display.set_caption("Tales of Sandstone")
         self.game_over = False
         self.score = 0
         self.n = 0
@@ -46,6 +47,7 @@ class Game(object):
         self.nivel_dificultad = 1
         self.autodestruccion= True
         self.camera = 0
+        self.open_menu= False
     
 
         # Creamos todas las listas donde estamos acumulando cosas
@@ -113,7 +115,8 @@ class Game(object):
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # 1 representa el botón izquierdo del ratón
                 mouse_position = pygame.mouse.get_pos()
                 if self.button.checkForInput(mouse_position):
-                    print("¡Segundo control de botón presionado!")
+                    print("primer control de botón presionado!")
+                    self.open_menu= True
 
             #soundtrack.control_audio(event,screen,soundtrack)
             self.player.controles_1(event,self.sprites,self.proyectil_list)
@@ -126,39 +129,42 @@ class Game(object):
                         self.__init__()
 
             
-        # Obtén las coordenadas del ratón
+        # Obtén las coordenadas del ratón. ESTAS VARIABLES SOLO ESTÁN PARA ILUSTRAR, ESTÁN SIN USAR.
         mouse_x, mouse_y = pygame.mouse.get_pos()
         #print(f"X: {mouse_x}, Y: {mouse_y}")
 
         # Se me olvidó qué es esto
         return False
 
-    """
-    NECESITO CREAR UNA CLASE "BUTTON" ANTES DE PODER UTILIZAR ESTO DE AQUÍ
+
     def main_menu(self,screen):
         pygame.display.set_caption("Menu")
 
-        while True:
-            screen.blit(black,(0,0))
+        if not self.game_over:
 
             MENU_MOUSE_POS = pygame.mouse.get_pos()
 
-            MENU_TEXT = pygame.font.get_font(100).render("MAIN MENU", True, "#b68f40")
-            MENU_RECT = MENU_TEXT.get_rect(center=(540,100))
+            #MENU_TEXT = pygame.font.get_font(100).render("MAIN MENU", True, "#b68f40")
+            #MENU_RECT = MENU_TEXT.get_rect(center=(540,100))
+           
 
-            PLAY_BUTTON = Button(image = pygame.image.load(os.path.join("models", "menu", "map.png"), pos = (640, 250),
-                                                            text_imput= "PLAY",font=pygame.font.get_font(75), base_color="#d7fcd4", hovering_color="white"))
+            PLAY_BUTTON = Button(600,400, "Play")
 
-            QUIT_BUTTON = Button(image = pygame.image.load(os.path.join("models", "menu", "mission.png"), pos = (640, 250),
-                                                            text_imput= "PLAY",font=pygame.font.get_font(75), base_color="#d7fcd4", hovering_color="white"))
+            QUIT_BUTTON = Button(700,500, "Salir")
         
-            screen.blit(MENU_TEXT, MENU_RECT)
+            
+            print ("FUNCIÓN DEL MENÚ ACTIVADA!!!")
+            PLAY_BUTTON.update()
+            texto = textos_pantalla.texto_random(black,ancho,alto,screen,"Esto es un texto random")
+
+            if self.mouse.click():
+                self.open_menu = False
 
             for button in [PLAY_BUTTON, QUIT_BUTTON]:
-                button.changecolor(MENU_MOUSE_POS)
-                button.update(screen)
-
-    """
+                button.changeColor(MENU_MOUSE_POS)
+                button.update()
+                
+        
 
 
     def run_logic(self):
@@ -289,6 +295,10 @@ class Game(object):
             textos_pantalla.texto_game_over_2(black,ancho,alto,screen)
         
 
+        #!MENU PRINCIPAL DEL JUEGO
+        if self.open_menu:
+            self.main_menu(screen)
+
         #! STATS Y PUNTUACIONES
         if not self.game_over:
             textos_pantalla.texto_puntuacion(screen, self.score)
@@ -297,9 +307,10 @@ class Game(object):
                 stats.hearts_mob(screen,self.mob.vida)
             textos_pantalla.texto_cargas(screen, self.player.amount_charge)
             
-
             #!Este de aquí es obligatorio para actualizar lo que se ve en pantalla
             self.sprites.draw(screen) 
+        
+        
             
         pygame.display.flip()
 

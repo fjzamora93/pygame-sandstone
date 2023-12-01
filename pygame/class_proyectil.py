@@ -21,6 +21,7 @@ class Proyectil(pygame.sprite.Sprite):
         self.rect.y = player_y + 10
         self.direction = direction
         self.contador = 0
+        self.n = 24
 
         #Condiciones de los ataques
         self.skill = 0  #El mob tiene la skill en neativo -1,-2,-3
@@ -77,7 +78,7 @@ class Proyectil(pygame.sprite.Sprite):
         
         #!ACTUALIZACIONES DE IMAGEN
         self.contador += 1
-        if self.contador >= 24:
+        if self.contador >= self.n:
             self.contador = 0
         
         if self.skill == 4 or self.skill == 2 or self.skill == 0 or self.skill == 3:
@@ -120,6 +121,7 @@ class Proyectil(pygame.sprite.Sprite):
             self.image_list = mis_funciones.obtener_ruta(mis_sprites.sonic)
             class_soundtrack.efecto_magia_1.play()
             self.vector = "horizontal"
+            self.n = 47
             self.speed = 10
             self.rect.y -= 20
             self.limite = 5
