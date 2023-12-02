@@ -68,14 +68,12 @@ class Player(pygame.sprite.Sprite):
         # Lógica salto
         if self.jumping:
             self.is_falling = True
-            self.image = pygame.image.load(os.path.join('models','player','player_summoning_2.png')).convert_alpha()
             if self.jump_count >= -8:
                 self.rect.y -= int((self.jump_count * abs(self.jump_count)) * 0.4)
                 self.jump_count -= 1
             else:
                 self.jump_count = 10
                 self.jumping = False
-                self.image= pygame.image.load(os.path.join('models', 'player', 'player_summoning_2.png')).convert_alpha()
                 
 
     def atack(self,skill):

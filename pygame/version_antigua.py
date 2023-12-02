@@ -1,5 +1,12 @@
 """
+ESTA VERSIÓN DEL CÓDIGO SE HA CREADO PARA RECURRIR A LAS ANTIGUAS ANOTACIONES
+SI FUESE NECESARIO Y RECORDAR QUÉ HACEN DETERMINADAS PARTES DEL CÓDIGO.
+
+DICHAS ANOTACIONES PUEDEN DESPARECER DE LA VERSIÓN PRINCIPAL.
+
 Instalar la librería de movie: pip install pygame moviepy
+
+
 Librería de artes gratis: https://opengameart.org/content/lpc-medieval-fantasy-character-sprites
 """
 
@@ -19,8 +26,8 @@ temporizador = 10
 numero_frames = 5
 
 
-
 #todo ANTES DE CLASS GAME, PODRÍAN IR TODAS LAS CLASES IMPORTADAS
+
 from class_mobs import Minion
 from class_mobs import Mob
 from class_proyectil import Proyectil
@@ -35,7 +42,8 @@ from class_mouse import Mouse
 
 class Game(object):
     def __init__(self):
-        pygame.display.set_caption("Tales of Sandstone") 
+        # Creamos una instancia de game over FALSE
+        pygame.display.set_caption("Tales of Sandstone")
         self.game_over = False
         self.score = 0
         self.n = 0
@@ -46,7 +54,7 @@ class Game(object):
         self.open_menu= False
     
 
-        # TODOS LAS LISTAS QUE VAMOS A UTILIZAR
+        # Creamos todas las listas donde estamos acumulando cosas
         self.proyectil_list = pygame.sprite.Group()
         self.minion_list = pygame.sprite.Group()
         self.sprites = pygame.sprite.Group()
@@ -57,17 +65,18 @@ class Game(object):
         self.items_list = pygame.sprite.Group()
         self.platform_list = pygame.sprite.Group()
         
-        #TODOS LOS ENTIDADES QUE VAMOS A INICIALIZAR
         for i in range(10):
             self.minion = Minion()
             self.sprites.add(self.minion)  
             self.minion_list.add(self.minion)
+
         for i in range(8):
             self.block = Block() 
             self.block.rect.y = 300
             self.sprites.add(self.block)
             self.blocks_list.add(self.block)
-        for i in range(5):
+       
+        for i in range(2):
             self.platform_2 = Block()
             self.platform_2.carpeta = 'models/blocks/big-block'
             self.platform_2.obtener_ruta()
@@ -75,17 +84,23 @@ class Game(object):
             self.sprites.add(self.platform_2)
             self.platform_list.add(self.platform_2)
        
+
+        #!INICIALIZACIÓN DE ENTIDADES
         self.item = Items()
         self.mob = Mob()
-        self.button = Button(ancho//2,50, "Menu")
+        self.button = Button(ancho//2,100, "Menu")
         self.mouse = Mouse()
-        self.player = Player()
-        self.x = self.player.rect.x
-        self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
 
         #Inicializamos la música
         self.soundtrack = Soundtrack()
         self.soundtrack.play_music(class_soundtrack.fondo)
+
+   
+
+        self.player = Player()
+        self.x = self.player.rect.x
+
+        self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
 
         self.sprites.add(self.mouse)
         self.sprites.add(self.player)
@@ -102,11 +117,12 @@ class Game(object):
             
             #CONTROL DEL RATÓN Y BOTÓN DE MENÚ
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # 1 representa el botón izquierdo del ratón
-                MOUSE_POSITION = pygame.mouse.get_pos()
-                if self.button.checkForInput(MOUSE_POSITION):
+                mouse_position = pygame.mouse.get_pos()
+                if self.button.checkForInput(mouse_position):
                     print("primer control de botón presionado!")
                     self.open_menu= True
- 
+                    
+
             #soundtrack.control_audio(event,screen,soundtrack)
             self.player.controles_1(event,self.sprites,self.proyectil_list)
             self.soundtrack.control_audio(event,screen)
@@ -117,28 +133,45 @@ class Game(object):
                     if self.game_over:
                         self.__init__()
 
+            
+        # Obtén las coordenadas del ratón. ESTAS VARIABLES SOLO ESTÁN PARA ILUSTRAR, ESTÁN SIN USAR.
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        #print(f"X: {mouse_x}, Y: {mouse_y}")
+
         # Esto retornará false y está almacenado en la variable "done"
         return False
 
-    def main_menu(self):
-        if not self.game_over:
-            MOUSE_POSITION = pygame.mouse.get_pos()
 
-            play_button = Button(ancho//2,300, "Reanudar")
-            restart_button = Button(ancho//2,400, "Reiniciar")
-        
+    def main_menu(self,screen):
+        pygame.display.set_caption("Menu")
+
+        if not self.game_over:
+
+            MENU_MOUSE_POS = pygame.mouse.get_pos()
+
+            PLAY_BUTTON = Button(ancho//2,300, "Reanudar")
+            QUIT_BUTTON = Button(ancho//2,400, "Reiniciar")
+            
+
+            PLAY_BUTTON.update()
+            textos_pantalla.texto_1(black,ancho//2,200,screen,"Esto es un texto random")
+
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # 1 representa el botón izquierdo del ratón
                     mouse_position = pygame.mouse.get_pos()
-                    if play_button.checkForInput(mouse_position):
+                    if PLAY_BUTTON.checkForInput(mouse_position):
                         self.open_menu = False
-                    if restart_button.checkForInput(mouse_position):    
+                    if QUIT_BUTTON.checkForInput(mouse_position):    
                         self.game_over = True
+            
 
-            for button in [play_button, restart_button]:
-                button.changeColor(MOUSE_POSITION)
+
+            for button in [PLAY_BUTTON, QUIT_BUTTON]:
+                button.changeColor(MENU_MOUSE_POS)
                 button.update()
                 
+        
+
 
     def run_logic(self):
         if not self.game_over:
@@ -267,7 +300,7 @@ class Game(object):
 
         #!MENU PRINCIPAL DEL JUEGO
         if self.open_menu:
-            self.main_menu()
+            self.main_menu(screen)
 
         #! STATS Y PUNTUACIONES
         if not self.game_over:

@@ -9,7 +9,7 @@ ancho = 900
 alto = 554
 screen= pygame.display.set_mode([ancho,alto])
 pygame.display.set_caption("Button!")
-main_font = pygame.font.SysFont("consolas",50)
+main_font = pygame.font.SysFont("consolas",30)
 black = (0, 0, 0)
 white = (255, 255, 255)
 

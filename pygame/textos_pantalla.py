@@ -6,24 +6,26 @@ alto=554
 black = (0,0,0)
 white = (255,255,255)
 
-def texto_game_over_1(black,ancho,alto,screen):
-    font= pygame.font.SysFont("consolas", 40)
-    text = font.render("¡Victoria!", True, black) 
+
+
+"""
+la variable texto se remplaza con el string a insertar (entre comillas).
+Este texto está pensado para que vaya siempre centrado en la pantalla, sin más.
+"""
+def texto_1(color,ancho,alto,screen,texto):
+    font= pygame.font.SysFont("consolas", 30)
+    text = font.render(texto, True, color) #La variable texto es el textoq ue va a aparecer en pantalla.
     center_x = (ancho//2 ) - (text.get_width()//2)
     center_y= (alto//2) - (text.get_height()//2)
     screen.blit(text, [center_x, center_y])
 
-def texto_game_over_2(black,ancho,alto,screen):
-    font= pygame.font.SysFont("consolas", 40)
-    text = font.render("¡Has sido derrotado!", True, black) 
-    center_x = (ancho//2 ) - (text.get_width()//2)
-    center_y= (alto//2) - (text.get_height()//2)
-    screen.blit(text, [center_x, center_y])
 
-def texto_puntuacion(screen, score):
-    font= pygame.font.SysFont("consolas", 50)
+#El texto en pantalla depende de una variable interna
+def texto_variable(screen, score, x, y):
+    font= pygame.font.SysFont("consolas", 30)
     puntuacion = font.render(f"Score: {score}", True, white)
-    screen.blit(puntuacion,[710,10])
+    screen.blit(puntuacion,[x,y])
+
 
 def texto_cargas(screen, cargas_acumuladas):
     font= pygame.font.SysFont("consolas",40)
