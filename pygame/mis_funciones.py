@@ -25,3 +25,13 @@ def contador (n,m):
 #n debería ser self.n para que cada clase tenga su contador.
 #Los n deberían inialiarse en 0.
 #m es el máximo de iteraciones posibles antes de volver a 0
+
+
+
+def generador_bloques(sprites, group_list, clase, x, y):
+    ruta_imagen = 'models/blocks'
+    clase.carpeta = ruta_imagen
+    clase.rect.x = x
+    clase.rect.y = y
+    sprites.add(clase)
+    group_list.add(clase)

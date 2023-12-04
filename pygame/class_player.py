@@ -23,18 +23,20 @@ class Player(pygame.sprite.Sprite):
         self.speed_y = 0
         self.vidas = 10
         self.direction = "right"
+
         
         # variables del salto,caida y gravedad
         self.jumping = False
         self.jump_count = 10
         self.is_falling = False
         self.colision_block = False
+        self.pisando = False
 
         #Variables habilidades
-        self.skill = None
         self.amount_charge = 0
         self.proyectil_case=0
         self.guardia_activa = True
+        self.limite_proyectil = 1
         
         
     def changespeed_x(self, x):
@@ -84,26 +86,21 @@ class Player(pygame.sprite.Sprite):
                     self.image = pygame.image.load(os.path.join('models','player','player_sword_left.png')).convert_alpha()
             case 1:
                 self.image = pygame.image.load(os.path.join('models','player','arco', 'player_arco_5.png')).convert_alpha()
-                
             case 2:
                 self.image = pygame.image.load(os.path.join('models','player','player_summoning_1.png')).convert_alpha()
-            
             case 3:
                 self.image = pygame.image.load(os.path.join('models', 'player', 'player_concentrate.png')).convert_alpha()
                 if self.direction == "left":
                     self.image = pygame.image.load(os.path.join('models','player','player_concentrate_left.png')).convert_alpha()
-     
             case 5:
                 self.image = pygame.image.load(os.path.join('models','player','player_summoning_1.png')).convert_alpha()
-
             case 6:
                 self.image = pygame.image.load(os.path.join('models','player','player_proteccion.png')).convert_alpha()
 
     def proteccion(self):
-        
         self.image = pygame.image.load(os.path.join('models','player','player_proteccion.png')).convert_alpha()
         self.guardia_activa = True
-        print ("guardia activada")
+    
 
     def deteccion_colision(self,blocks_list,block_rect,block_y,block_top,block_left,block_rigth):
         #if self.rect.colliderect(block_rect):
@@ -140,7 +137,7 @@ class Player(pygame.sprite.Sprite):
             
             #Lógica de ataques
             if event.key == pygame.K_SPACE:
-                self.proyectil = Proyectil(self.rect.x,self.rect.y,self.direction)
+                self.proyectil = Proyectil(self.rect.x,self.rect.y,self.direction, self.limite_proyectil)
                 self.proyectil.cargas_acumuladas = self.amount_charge
                 self.proyectil.skill = self.proyectil_case
                 self.atack(self.proyectil_case)
@@ -156,7 +153,7 @@ class Player(pygame.sprite.Sprite):
                 self.proyectil.skill_set(all_sprites_list,proyectil_list)
             
             if event.key == pygame.K_q:
-                self.proyectil = Proyectil(self.rect.x,self.rect.y,self.direction)
+                self.proyectil = Proyectil(self.rect.x,self.rect.y,self.direction, 3)
                 self.proyectil.vector = "vertical"
                 self.proyectil.skill = 5
                 self.proyectil.skill_set(all_sprites_list,proyectil_list)
@@ -172,17 +169,24 @@ class Player(pygame.sprite.Sprite):
         self.amount_charge += 5
         if item.list_path_random == "models/items\manzana.png":
             self.vidas += 1
+            self.limite_proyectil += 2
         if item.list_path_random == "models/items\gema.png":
             self.vidas += 2
+            self.limite_proyectil += 2
         if item.list_path_random == "models/items\pearl.png":
             self.proyectil_case = 1
+            self.limite_proyectil += 2
         if item.list_path_random == "models/items\libro.png":
             self.proyectil_case = 2
+            self.limite_proyectil += 2
         if item.list_path_random == "models/items\diamond.png":
             self.proyectil_case = 3
+            self.limite_proyectil += 2
         if item.list_path_random == "models/items\emerald.png":
             self.proyectil_case = 4
+            self.limite_proyectil += 2
             self.autodestruccion = False
+        
                 
         
 

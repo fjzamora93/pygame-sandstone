@@ -5,7 +5,7 @@ Librería de artes gratis: https://opengameart.org/content/lpc-medieval-fantasy-
 
 
 import pygame, random, os
-import class_soundtrack,textos_pantalla,stats
+import class_soundtrack,textos_pantalla,stats, mis_funciones
 from tkinter import *
 pygame.mixer.init() #Para reproducir sonidos, guapi
 
@@ -62,18 +62,16 @@ class Game(object):
             self.minion = Minion()
             self.sprites.add(self.minion)  
             self.minion_list.add(self.minion)
-        for i in range(8):
-            self.block = Block() 
-            self.block.rect.y = 300
-            self.sprites.add(self.block)
-            self.blocks_list.add(self.block)
+        
         for i in range(5):
-            self.platform_2 = Block()
-            self.platform_2.carpeta = 'models/blocks/big-block'
+            self.platform_2 = Block(0)
+            self.platform_2.bloque_dinamico = False #CAMBIAR A TRUE PARA ANIMAR BLOQUE
+            self.platform_2.carpeta = 'models/blocks/interruptor'
             self.platform_2.obtener_ruta()
-            self.platform_2.rect.y = 400
-            self.sprites.add(self.platform_2)
-            self.platform_list.add(self.platform_2)
+            mis_funciones.generador_bloques(self.sprites,self.blocks_list,self.platform_2,self.platform_2.rect.x,400)
+        for i in range (5):
+            self.block = Block(1)
+            mis_funciones.generador_bloques(self.sprites,self.blocks_list,self.block,self.block.rect.x,400)
        
         self.item = Items()
         self.mob = Mob()
@@ -81,7 +79,7 @@ class Game(object):
         self.mouse = Mouse()
         self.player = Player()
         self.x = self.player.rect.x
-        self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
+        self.proyectil = Proyectil(self.player.rect.x, self.player.rect.y, self.player.direction, self.player.proyectil_case+1)
 
         #Inicializamos la música
         self.soundtrack = Soundtrack()
@@ -147,6 +145,10 @@ class Game(object):
             self.player.deteccion_colision(self.blocks_list,self.block.rect,self.block.rect.y,self.block.rect.top,self.block.rect.left,self.block.rect.right)
             self.player.deteccion_colision(self.platform_list,self.platform_2.rect,self.platform_2.rect.y,self.platform_2.rect.top,self.platform_2.rect.left,self.platform_2.rect.right)
 
+            
+
+
+
             #!BOSS Y MOBS PRINCIPALES
             if self.score % 20 == 0:
                 if self.mob.vida <= 1:
@@ -202,8 +204,8 @@ class Game(object):
             
             
             #! BONIFICACIONES Y CONTROL DE ATAQUE
-            if len(self.proyectil_list) > self.proyectil.limite:
-                sprite_a_eliminar = self.proyectil_list.sprites()[self.proyectil.limite]
+            if len(self.proyectil_list) > self.player.limite_proyectil:
+                sprite_a_eliminar = self.proyectil_list.sprites()[self.player.limite_proyectil]
                 sprite_a_eliminar.kill()
 
             if pygame.sprite.spritecollide(self.player,self.items_list, True):
@@ -216,9 +218,6 @@ class Game(object):
                 self.item = Items()
                 self.sprites.add(self.item)
             self.items_list.add(self.item)
-            
-                
-                    
 
             #!Condición de GAME OVER
             if self.player.vidas == 0:
@@ -237,6 +236,8 @@ class Game(object):
         self.background = obtener_background_path()
         background= pygame.image.load(self.background[9]).convert_alpha()
         suelo = pygame.image.load(os.path.join('background','mountain','suelo_2.png')).convert_alpha()
+
+
 
         
         
@@ -273,6 +274,8 @@ class Game(object):
         if not self.game_over:
             textos_pantalla.texto_variable(screen, self.score, 710,10)
             stats.hearts(screen, self.player.vidas)
+            ruta = os.path.join('models', 'particle', 'mana.png')
+            stats.generar_stat(screen, self.player.limite_proyectil, ruta, 10, 50, 10)
             if self.mob.aparicion == True:
                 stats.hearts_mob(screen,self.mob.vida)
             textos_pantalla.texto_cargas(screen, self.player.amount_charge)

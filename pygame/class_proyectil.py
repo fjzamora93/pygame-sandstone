@@ -9,7 +9,7 @@ alto=554
 
     
 class Proyectil(pygame.sprite.Sprite):
-    def __init__(self,player_x,player_y,direction):
+    def __init__(self, player_x, player_y, direction, n):
         super().__init__()
         self.image = pygame.image.load(os.path.join('models','skill','sweep_1.png')).convert_alpha()
         self.image_list = []
@@ -27,7 +27,7 @@ class Proyectil(pygame.sprite.Sprite):
         self.skill = 0  #El mob tiene la skill en neativo -1,-2,-3
         self.speed = 5
         self.speed_y = 0
-        self.limite = 1
+        self.limite = n
         self.cargas_acumuladas = 0
 
         #Solo para el mob (de ahí que esté en negativo)
@@ -86,7 +86,7 @@ class Proyectil(pygame.sprite.Sprite):
           
 
 
-    def skill_set(self,all_sprites_list,proyectil_list):
+    def skill_set(self, all_sprites_list, proyectil_list):
         if self.skill == 0 or self.cargas_acumuladas <= 0:
             self.image_list = mis_funciones.obtener_ruta(mis_sprites.sword)
             class_soundtrack.sword.play()
@@ -95,7 +95,7 @@ class Proyectil(pygame.sprite.Sprite):
             self.image = pygame.image.load(os.path.join('models','skill','arrow.png')).convert_alpha()
             self.speed_y += 0.5
             self.speed = 10
-            self.limite = 5
+            print ("LIMITE A 5!!")
             class_soundtrack.arco.play()
             self.vector = "horizontal"
             if self.direction == "left":
@@ -106,7 +106,7 @@ class Proyectil(pygame.sprite.Sprite):
             class_soundtrack.ice.play()
             self.vector = "horizontal"
             self.speed = 15
-            self.limite = self.cargas_acumuladas
+
         
 
         if self.skill == 3 and self.cargas_acumuladas > 0:         
@@ -114,7 +114,6 @@ class Proyectil(pygame.sprite.Sprite):
             class_soundtrack.atack_fireball_1.play()
             self.vector = "horizontal"
             self.speed = 15
-            self.limite = 1
 
         #! FORMA 2 DE OBTENER UN PATH DE IMAGEN, CREO QUE QUEDA MÁS LIMPIO
         if self.skill == 4 and self.cargas_acumuladas > 0:    
@@ -124,15 +123,16 @@ class Proyectil(pygame.sprite.Sprite):
             self.n = 47
             self.speed = 10
             self.rect.y -= 20
-            self.limite = 5
 
         if self.skill == 5:
             self.image = pygame.image.load(os.path.join('models','skill','rocket.png')).convert_alpha()
             class_soundtrack.atack_laser.play()
+            print ("LIMITE A 5!!")
 
         if self.skill == 6:
             self.image= pygame.image.load(os.path.join('models', 'skill', 'buble.png')).convert_alpha()
             self.vector = "static"
+            
         
             
         all_sprites_list.add(self)
