@@ -1,7 +1,3 @@
-"""
-Instalar la librería de movie: pip install pygame moviepy
-Librería de artes gratis: https://opengameart.org/content/lpc-medieval-fantasy-character-sprites
-"""
 
 
 import pygame, random, os
@@ -9,7 +5,7 @@ import class_soundtrack,textos_pantalla,stats, mis_funciones
 from tkinter import *
 pygame.mixer.init() #Para reproducir sonidos, guapi
 
-
+nivel = 2
 ancho = 900
 alto = 554
 screen= pygame.display.set_mode([ancho,alto])
@@ -17,6 +13,7 @@ black = (0, 0, 0)
 white = (255, 255, 255)
 temporizador = 10
 numero_frames = 5
+
 
 
 
@@ -32,12 +29,11 @@ from class_items import Items
 from class_soundtrack import Soundtrack
 from class_button import Button
 from class_mouse import Mouse
-import _lvl_2
 
 class Game_2(object):
     def __init__(self):
         pygame.display.set_caption("Tales of Sandstone") 
-        self.nivel = 1
+        self.nivel = 2
         self.game_over = False
         self.score = 0
         self.n = 0
@@ -65,15 +61,6 @@ class Game_2(object):
             self.sprites.add(self.minion)  
             self.minion_list.add(self.minion)
         
-        for i in range(5):
-            self.platform_2 = Block(0)
-            self.platform_2.bloque_dinamico = False #CAMBIAR A TRUE PARA ANIMAR BLOQUE
-            self.platform_2.carpeta = 'models/blocks/interruptor'
-            self.platform_2.obtener_ruta()
-            mis_funciones.generador_bloques(self.sprites,self.blocks_list,self.platform_2,self.platform_2.rect.x,400)
-        for i in range (5):
-            self.block = Block(1)
-            mis_funciones.generador_bloques(self.sprites,self.blocks_list,self.block,self.block.rect.x,400)
        
         self.item = Items()
         self.mob = Mob()
@@ -144,23 +131,16 @@ class Game_2(object):
         if not self.game_over:
             self.sprites.update()
 
-            self.player.deteccion_colision(self.blocks_list,self.block.rect,self.block.rect.y,self.block.rect.top,self.block.rect.left,self.block.rect.right)
-            self.player.deteccion_colision(self.platform_list,self.platform_2.rect,self.platform_2.rect.y,self.platform_2.rect.top,self.platform_2.rect.left,self.platform_2.rect.right)
-
             #!BOSS Y MOBS PRINCIPALES
             if self.score % 20 == 0:
                 if self.mob.vida <= 1:
                     self.mob.kill()
                     self.mob = Mob()
-                    self.mob.aparicion = False
-                    self.nivel = 2
-
-            #!CONDICON PUESTA PARA PASAR DE NIVEL INMEDIATAMENTE!!!!!!!
-            if self.score > 1:
+                    self.mob.aparicion = False      
+            if self.score > 10:
                 self.mob.spawn(self.player.rect.x, self.player.rect.y)
                 self.mob.accion_aleatoria(self.sprites, self.mob_atack_list,self.player.rect.x)
                 self.mob_list.add(self.mob)
-                self.nivel = 2
 
             if pygame.Rect.colliderect(self.player.rect, self.mob.rect) and self.mob.vida > 0:
                 if self.mob.temporizador == 10: #ralentiza ticks para que el mob haga menos daño por colision
@@ -236,10 +216,11 @@ class Game_2(object):
             else:
                 self.n = 0
         self.background = obtener_background_path()
-        background= pygame.image.load(self.background[9]).convert_alpha()
+        background= pygame.image.load(self.background[0]).convert_alpha()
         suelo = pygame.image.load(os.path.join('background','mountain','suelo_2.png')).convert_alpha()
 
 
+        
         #En la siguiente linea: la posición del jugador se le resta la cámara (0) y el ancho (si dividimos ancho//2 me quedo sin pantalla!!!)
         self.camera += (self.player.rect.x/2 - self.camera - ancho)
         screen.blit(background, [-900-self.camera, 0])
@@ -250,9 +231,6 @@ class Game_2(object):
         if self.player.speed_x > 0:
             self.player.image=pygame.image.load(self.player.lista_caminar[self.n]).convert_alpha()
 
-
-        #TODO Bloques en pantalla
-        
     
 
         #! PANTALLA DE FIN DEL JUEGO
@@ -291,17 +269,17 @@ def main():
     pygame.display.set_caption("Coordenadas del Ratón")
     done= False
     clock = pygame.time.Clock()
-    game = Game_2()
+    game_2 = Game_2()
     while not done:
-        if game.nivel == 1:
-            done = game.process_events(screen)
-            game.run_logic()
-            game.display_frame(screen)
-            
-        if game.nivel == 2:
-            _lvl_2.main()
-
+        if game_2.nivel == 2:
+            done = game_2.process_events(screen)
+            game_2.run_logic()
+            game_2.display_frame(screen)
+            clock.tick(60)
+    
     pygame.quit()
+
+game_2 = Game_2
 
 if __name__ == "__main__":
     main()

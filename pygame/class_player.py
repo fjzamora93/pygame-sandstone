@@ -24,6 +24,7 @@ class Player(pygame.sprite.Sprite):
         self.vidas = 10
         self.direction = "right"
 
+       
         
         # variables del salto,caida y gravedad
         self.jumping = False
@@ -45,15 +46,19 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.image.load(os.path.join(player_caminar_list[random.randint(0,5)])).convert_alpha()
             self.direction = "right"
         elif x < 0:
-            self.image = pygame.image.load(os.path.join('models', 'player', 'player_left.png')).convert_alpha()
+            self.image = self.inverted_image
             self.direction = "left"
-      
+        
 
     def update(self):  
+         #Sprites
+        self.caminar_derecha= pygame.image.load(os.path.join(player_caminar_list[random.randint(0,5)])).convert_alpha()
+        self.inverted_image = pygame.transform.flip(self.caminar_derecha, True, False)
         #contador interno de animacion
         #if not self.jumping and  and self.colision_block == False:
             #self.speed_y = 5
         
+      
         if self.is_falling and not self.jumping and self.rect.y < 480:
             self.speed_y = 5
         self.rect.x += self.speed_x
