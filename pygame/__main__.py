@@ -65,6 +65,15 @@ class Game_2(object):
             self.sprites.add(self.minion)  
             self.minion_list.add(self.minion)
         
+        for i in range(5):
+            self.platform_2 = Block(0)
+            self.platform_2.bloque_dinamico = False #CAMBIAR A TRUE PARA ANIMAR BLOQUE
+            self.platform_2.carpeta = 'models/blocks/interruptor'
+            self.platform_2.obtener_ruta()
+            mis_funciones.generador_bloques(self.sprites,self.blocks_list,self.platform_2,self.platform_2.rect.x,400)
+        for i in range (5):
+            self.block = Block(1)
+            mis_funciones.generador_bloques(self.sprites,self.blocks_list,self.block,self.block.rect.x,400)
        
         self.item = Items()
         self.mob = Mob()
@@ -115,9 +124,12 @@ class Game_2(object):
         if not self.game_over:
             MOUSE_POSITION = pygame.mouse.get_pos()
 
-            play_button = Button(ancho//2,300, "Reanudar")
-            restart_button = Button(ancho//2,400, "Reiniciar")
-        
+            play_button = Button(ancho//2,150, "Reanudar")
+            restart_button = Button(ancho//2,200, "Reiniciar")
+            save_button = Button(ancho//2,250, "Guardar")
+            load_button = Button(ancho//2,300, "Cargar")
+            level_button = Button(ancho//2,300, "Cambiar de nivel")
+
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # 1 representa el botón izquierdo del ratón
                     mouse_position = pygame.mouse.get_pos()
@@ -125,8 +137,17 @@ class Game_2(object):
                         self.open_menu = False
                     if restart_button.checkForInput(mouse_position):    
                         self.game_over = True
+                    if save_button.checkForInput (mouse_position):
+                        ...
+                    if load_button.checkForInput(mouse_position):
+                        ...
+                    if level_button.checkForInput(mouse_position):
+                        if self.nivel == 1:
+                            self.nivel = 2
+                        elif self.nivel == 2:
+                            self.nivel = 1
 
-            for button in [play_button, restart_button]:
+            for button in [play_button, restart_button, save_button, load_button, level_button]:
                 button.changeColor(MOUSE_POSITION)
                 button.update()
                 
@@ -134,6 +155,9 @@ class Game_2(object):
     def run_logic(self):
         if not self.game_over:
             self.sprites.update()
+
+            self.player.deteccion_colision(self.blocks_list,self.block.rect,self.block.rect.y,self.block.rect.top,self.block.rect.left,self.block.rect.right)
+            self.player.deteccion_colision(self.platform_list,self.platform_2.rect,self.platform_2.rect.y,self.platform_2.rect.top,self.platform_2.rect.left,self.platform_2.rect.right)
 
             #!BOSS Y MOBS PRINCIPALES
             if self.score % 20 == 0:
@@ -143,7 +167,7 @@ class Game_2(object):
                     self.mob.aparicion = False
                     self.nivel = 2
 
-            #!CONDICON PUESTA PARA PASAR DE NIVEL INMEDIATAMENTE!!!!!!!
+            #!CONDICON PUESTA PARA PASAR DE NIVEL
             if self.score > 1:
                 self.mob.spawn(self.player.rect.x, self.player.rect.y)
                 self.mob.accion_aleatoria(self.sprites, self.mob_atack_list,self.player.rect.x)
@@ -290,6 +314,7 @@ def main():
             _lvl_2.main()
 
     pygame.quit()
+
 
 if __name__ == "__main__":
     main()

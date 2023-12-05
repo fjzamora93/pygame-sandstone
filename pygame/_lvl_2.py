@@ -18,6 +18,8 @@ numero_frames = 5
 
 
 #todo ANTES DE CLASS GAME, PODRÍAN IR TODAS LAS CLASES IMPORTADAS
+import __main__
+
 from class_mobs import Minion
 from class_mobs import Mob
 from class_proyectil import Proyectil
@@ -29,6 +31,7 @@ from class_items import Items
 from class_soundtrack import Soundtrack
 from class_button import Button
 from class_mouse import Mouse
+from class_menu import Menu
 
 class Game_2(object):
     def __init__(self):
@@ -61,7 +64,7 @@ class Game_2(object):
             self.sprites.add(self.minion)  
             self.minion_list.add(self.minion)
         
-       
+        self.menu = Menu()
         self.item = Items()
         self.mob = Mob()
         self.button = Button(ancho//2,50, "Menu")
@@ -111,9 +114,12 @@ class Game_2(object):
         if not self.game_over:
             MOUSE_POSITION = pygame.mouse.get_pos()
 
-            play_button = Button(ancho//2,300, "Reanudar")
-            restart_button = Button(ancho//2,400, "Reiniciar")
-        
+            play_button = Button(ancho//2,150, "Reanudar")
+            restart_button = Button(ancho//2,200, "Reiniciar")
+            save_button = Button(ancho//2,250, "Guardar")
+            load_button = Button(ancho//2,300, "Cargar")
+            level_button = Button(ancho//2,300, "Cambiar de nivel")
+
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # 1 representa el botón izquierdo del ratón
                     mouse_position = pygame.mouse.get_pos()
@@ -121,8 +127,14 @@ class Game_2(object):
                         self.open_menu = False
                     if restart_button.checkForInput(mouse_position):    
                         self.game_over = True
+                    if save_button.checkForInput (mouse_position):
+                        ...
+                    if load_button.checkForInput(mouse_position):
+                        ...
+                    if level_button.checkForInput(mouse_position):
+                        self.nivel = 1
 
-            for button in [play_button, restart_button]:
+            for button in [play_button, restart_button, save_button, load_button, level_button]:
                 button.changeColor(MOUSE_POSITION)
                 button.update()
                 
@@ -245,7 +257,7 @@ class Game_2(object):
 
         #!MENU PRINCIPAL DEL JUEGO
         if self.open_menu:
-            self.main_menu()
+            self.menu.main_menu()
 
         #! STATS Y PUNTUACIONES
         if not self.game_over:
@@ -276,6 +288,8 @@ def main():
             game_2.run_logic()
             game_2.display_frame(screen)
             clock.tick(60)
+
+    
     
     pygame.quit()
 

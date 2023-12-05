@@ -2,56 +2,50 @@ import pygame, sys, os
 from tkinter import *
 from pygame import *
 
-#!ESTA CLASE NO FUNCIONA, IGNORAR TODO LO QUE APARECE AQUÍ 
+
 
 font= pygame.font.SysFont("arial",40)
-black = (0,0,0)
-white = (255,255,255)
+ancho = 900
+alto = 554
+screen= pygame.display.set_mode([ancho,alto])
+black = (0, 0, 0)
+white = (255, 255, 255)
+temporizador = 10
+numero_frames = 5
 
 
-def play(screen):
-    pygame.display.set_caption("Play")
-    PLAY_MOUSE_POS = pygame.mouse.get_pos()
+class Menu(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
 
-    screen.fill("black")
+    def main_menu(self):
+        if not self.game_over:
+            MOUSE_POSITION = pygame.mouse.get_pos()
 
-    PLAY_TEXT = font.render(f"Texto en pantalla", True, white)
-    PLAY_RECT = PLAY_TEXT.get.rect(center=(640,460))
+            play_button = Button(ancho//2,150, "Reanudar")
+            restart_button = Button(ancho//2,200, "Reiniciar")
+            save_button = Button(ancho//2,250, "Guardar")
+            load_button = Button(ancho//2,300, "Cargar")
+            level_button = Button(ancho//2,300, "Cambiar de nivel")
 
-    screen.blit(PLAY_TEXT,PLAY_RECT)
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # 1 representa el botón izquierdo del ratón
+                    mouse_position = pygame.mouse.get_pos()
+                    if play_button.checkForInput(mouse_position):
+                        self.open_menu = False
+                    if restart_button.checkForInput(mouse_position):    
+                        self.game_over = True
+                    if save_button.checkForInput (mouse_position):
+                        ...
+                    if load_button.checkForInput(mouse_position):
+                        ...
+                    if level_button.checkForInput(mouse_position):
+                        if self.nivel == 1:
+                            self.nivel = 2
+                        elif self.nivel == 2:
+                            self.nivel = 1
 
-    PLAY_BACK = Button (image=None, pos=(640,460),
-                        text_imput="BACK", font= font.render(f"Texto en pantalla", True, white))
-    
-    PLAY_BACK.changeColor(PLAY_MOUSE_POS)
-    PLAY_BACK.update(screen)
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if PLAY_BACK.checkForImput(PLAY_MOUSE_POS):
-                main_menu()
-    
-    pygame.display.update()
-
-    def main_menu(screen):
-        pygame.display.set_caption("Menu")
-
-        while True:
-            screen.blit(black,(0,0))
-
-            MENU_MOUSE_POS = pygame.mouse.get_pos()
-
-            MENU_TEXT = pygame.font.get_font(100).render("MAIN MENU", True, "#b68f40")
-            MENU_RECT = MENU_TEXT.get_rect(center=(540,100))
-
-            PLAY_BUTTON = Button(image = pygame.image.load(os.path.join("models", "menu", "map.png"), pos = (640, 250),
-                                                            text_imput= "PLAY",font=pygame.font.get_font(75), base_color="#d7fcd4", hovering_color="white"))
-
-            QUIT_BUTTON = Button(image = pygame.image.load(os.path.join("models", "menu", "mission.png"), pos = (640, 250),
-                                                            text_imput= "PLAY",font=pygame.font.get_font(75), base_color="#d7fcd4", hovering_color="white"))
-
-        screen.blit(MENU_TEXT, MENU_RECT)
+            for button in [play_button, restart_button, save_button, load_button, level_button]:
+                button.changeColor(MOUSE_POSITION)
+                button.update()
 
