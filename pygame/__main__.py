@@ -65,15 +65,6 @@ class Game_2(object):
             self.sprites.add(self.minion)  
             self.minion_list.add(self.minion)
         
-        for i in range(5):
-            self.platform_2 = Block(0)
-            self.platform_2.bloque_dinamico = False #CAMBIAR A TRUE PARA ANIMAR BLOQUE
-            self.platform_2.carpeta = 'models/blocks/interruptor'
-            self.platform_2.obtener_ruta()
-            mis_funciones.generador_bloques(self.sprites,self.blocks_list,self.platform_2,self.platform_2.rect.x,400)
-        for i in range (5):
-            self.block = Block(1)
-            mis_funciones.generador_bloques(self.sprites,self.blocks_list,self.block,self.block.rect.x,400)
        
         self.item = Items()
         self.mob = Mob()
@@ -143,9 +134,6 @@ class Game_2(object):
     def run_logic(self):
         if not self.game_over:
             self.sprites.update()
-
-            self.player.deteccion_colision(self.blocks_list,self.block.rect,self.block.rect.y,self.block.rect.top,self.block.rect.left,self.block.rect.right)
-            self.player.deteccion_colision(self.platform_list,self.platform_2.rect,self.platform_2.rect.y,self.platform_2.rect.top,self.platform_2.rect.left,self.platform_2.rect.right)
 
             #!BOSS Y MOBS PRINCIPALES
             if self.score % 20 == 0:

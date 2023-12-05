@@ -1,147 +1,167 @@
 """
-
 Instalar la librería de movie: pip install pygame moviepy
-Buscar un tutorial para GIF
-
 Librería de artes gratis: https://opengameart.org/content/lpc-medieval-fantasy-character-sprites
 """
 
 
 import pygame, random, os
-import soundtrack,textos_pantalla,stats
+import class_soundtrack,textos_pantalla,stats, mis_funciones
+from tkinter import *
 pygame.mixer.init() #Para reproducir sonidos, guapi
 
 
 ancho = 900
 alto = 554
+screen= pygame.display.set_mode([ancho,alto])
 black = (0, 0, 0)
 white = (255, 255, 255)
 temporizador = 10
 numero_frames = 5
 
 
+
 #todo ANTES DE CLASS GAME, PODRÍAN IR TODAS LAS CLASES IMPORTADAS
-from class_generic import Proyectil
-from class_generic import Corazon
-from class_generic import Mob
+from class_mobs import Minion
+from class_mobs import Mob
+from class_proyectil import Proyectil
 from class_player import Player
 from class_blocks import Block
 from class_blocks import obtener_ruta
 from background import obtener_background_path
+from class_items import Items
+from class_soundtrack import Soundtrack
+from class_button import Button
+from class_mouse import Mouse
+import _lvl_2
 
-
-class Game(object):
+class Game_2(object):
     def __init__(self):
-        # Creamos una instancia de game over FALSE
+        pygame.display.set_caption("Tales of Sandstone") 
+        self.nivel = 1
         self.game_over = False
         self.score = 0
         self.n = 0
         self.contador_1 = 0
         self.nivel_dificultad = 1
-        self.block_path_png = obtener_ruta()
-        
+        self.autodestruccion= True
+        self.camera = 0
+        self.open_menu= False
+    
 
-        # Creamos todas las listas donde estamos acumulando cosas
+        # TODOS LAS LISTAS QUE VAMOS A UTILIZAR
         self.proyectil_list = pygame.sprite.Group()
-        self.corazon_list = pygame.sprite.Group()
-        self.all_sprites_list = pygame.sprite.Group()
+        self.minion_list = pygame.sprite.Group()
+        self.sprites = pygame.sprite.Group()
         self.mob_list =pygame.sprite.Group()
         self.mob_atack_list = pygame.sprite.Group()
         self.fuegos_cruzados = pygame.sprite.Group()
         self.blocks_list =pygame.sprite.Group()
-
+        self.items_list = pygame.sprite.Group()
+        self.platform_list = pygame.sprite.Group()
+        
+        #TODOS LOS ENTIDADES QUE VAMOS A INICIALIZAR
+        for i in range(10):
+            self.minion = Minion()
+            self.sprites.add(self.minion)  
+            self.minion_list.add(self.minion)
         
         for i in range(5):
-            self.corazon = Corazon()
-            self.all_sprites_list.add(self.corazon)  
-            self.corazon_list.add(self.corazon)
-   
-
-        for i in range(5):
-            self.block = Block(self.block_path_png[4]) 
-            self.all_sprites_list.add(self.block)
-            self.blocks_list.add(self.block)
-
-        #!INICIALIZACIÓN DE ENTIDADES
-        
+            self.platform_2 = Block(0)
+            self.platform_2.bloque_dinamico = False #CAMBIAR A TRUE PARA ANIMAR BLOQUE
+            self.platform_2.carpeta = 'models/blocks/interruptor'
+            self.platform_2.obtener_ruta()
+            mis_funciones.generador_bloques(self.sprites,self.blocks_list,self.platform_2,self.platform_2.rect.x,400)
+        for i in range (5):
+            self.block = Block(1)
+            mis_funciones.generador_bloques(self.sprites,self.blocks_list,self.block,self.block.rect.x,400)
+       
+        self.item = Items()
         self.mob = Mob()
+        self.button = Button(ancho//2,50, "Menu")
+        self.mouse = Mouse()
         self.player = Player()
-        self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
-        self.block = Block(self.block_path_png[1])
-        self.all_sprites_list.add(self.player)
-        self.all_sprites_list.add(self.block)
-        self.blocks_list.add(self.block)
-        
+        self.x = self.player.rect.x
+        self.proyectil = Proyectil(self.player.rect.x, self.player.rect.y, self.player.direction, self.player.proyectil_case+1)
 
-    def process_events(self):
+        #Inicializamos la música
+        self.soundtrack = Soundtrack()
+        self.soundtrack.play_music(class_soundtrack.fondo)
+
+        self.sprites.add(self.mouse)
+        self.sprites.add(self.player)
+        self.sprites.add(self.item)
+        self.sprites.add(self.soundtrack)
+       
+        #Ocultamos cursor
+        pygame.mouse.set_visible(False)
+ 
+    def process_events(self,screen):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return True
             
-            if event.type == pygame.KEYDOWN:
-                #Lógica de movimientos y salto
-                if event.key == pygame.K_d:
-                    self.player.changespeed_x(5)
-                if event.key == pygame.K_a:
-                    self.player.changespeed_x(-5)
-                if event.key == pygame.K_s:
-                    self.player.esquivar()
-                if not self.player.jumping:
-                    if event.key == pygame.K_w:
-                        self.player.jumping = True
-
-                #Lógica de ataques
-                if event.key == pygame.K_SPACE:
-                    self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
-                    if self.player.amount_charge > 0:
-                        self.proyectil.vector = "horizontal"
-                        self.proyectil.skill = "arrow"
-                    else:
-                        self.proyectil.vector = "melee"
-                        self.proyectil.skill = "sword"
-                    self.player.atack(self.proyectil.skill) 
-                    self.proyectil.skill_set(self.all_sprites_list,self.proyectil_list)
-                
-                if event.key == pygame.K_q:
-                    self.proyectil = Proyectil(self.player.rect.x,self.player.rect.y,self.player.direction)
-                    self.proyectil.vector = "vertical"
-                    self.proyectil.skill = "rocket"
-                    self.proyectil.skill_set(self.all_sprites_list,self.proyectil_list)
-             
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_d:
-                    self.player.speed_x = 0
-                if event.key == pygame.K_a:
-                    self.player.speed_x = 0
-            
-           
-
-             #CREAMOS UNA NUEVA LÓGICA PARA REINICIAR EL JUEGO
+            #CONTROL DEL RATÓN Y BOTÓN DE MENÚ
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # 1 representa el botón izquierdo del ratón
+                MOUSE_POSITION = pygame.mouse.get_pos()
+                if self.button.checkForInput(MOUSE_POSITION):
+                    print("primer control de botón presionado!")
+                    self.open_menu= True
+ 
+            #soundtrack.control_audio(event,screen,soundtrack)
+            self.player.controles_1(event,self.sprites,self.proyectil_list)
+            self.soundtrack.control_audio(event,screen)
+ 
+            #CREAMOS UNA NUEVA LÓGICA PARA REINICIAR EL JUEGO
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.game_over:
                     if self.game_over:
                         self.__init__()
 
-            
-        # Obtén las coordenadas del ratón
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        print(f"X: {mouse_x}, Y: {mouse_y}")
-
-        # Se me olvidó qué es esto
+        # Esto retornará false y está almacenado en la variable "done"
         return False
+
+    def main_menu(self):
+        if not self.game_over:
+            MOUSE_POSITION = pygame.mouse.get_pos()
+
+            play_button = Button(ancho//2,300, "Reanudar")
+            restart_button = Button(ancho//2,400, "Reiniciar")
+        
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # 1 representa el botón izquierdo del ratón
+                    mouse_position = pygame.mouse.get_pos()
+                    if play_button.checkForInput(mouse_position):
+                        self.open_menu = False
+                    if restart_button.checkForInput(mouse_position):    
+                        self.game_over = True
+
+            for button in [play_button, restart_button]:
+                button.changeColor(MOUSE_POSITION)
+                button.update()
+                
 
     def run_logic(self):
         if not self.game_over:
-            self.all_sprites_list.update()
+            self.sprites.update()
 
             self.player.deteccion_colision(self.blocks_list,self.block.rect,self.block.rect.y,self.block.rect.top,self.block.rect.left,self.block.rect.right)
-            
-      
+            self.player.deteccion_colision(self.platform_list,self.platform_2.rect,self.platform_2.rect.y,self.platform_2.rect.top,self.platform_2.rect.left,self.platform_2.rect.right)
+
             #!BOSS Y MOBS PRINCIPALES
+            if self.score % 20 == 0:
+                if self.mob.vida <= 1:
+                    self.mob.kill()
+                    self.mob = Mob()
+                    self.mob.aparicion = False
+                    self.nivel = 2
+
+            #!CONDICON PUESTA PARA PASAR DE NIVEL INMEDIATAMENTE!!!!!!!
             if self.score > 1:
                 self.mob.spawn(self.player.rect.x, self.player.rect.y)
-                self.mob.accion_aleatoria(self.all_sprites_list, self.mob_atack_list,self.player.rect.x)
+                self.mob.accion_aleatoria(self.sprites, self.mob_atack_list,self.player.rect.x)
                 self.mob_list.add(self.mob)
+                self.nivel = 2
+
             if pygame.Rect.colliderect(self.player.rect, self.mob.rect) and self.mob.vida > 0:
                 if self.mob.temporizador == 10: #ralentiza ticks para que el mob haga menos daño por colision
                     self.player.vidas -=1
@@ -149,39 +169,57 @@ class Game(object):
             fuegos_cruzados = pygame.sprite.groupcollide(self.proyectil_list,self.mob_atack_list, False, True)
             mob_hit_list = pygame.sprite.spritecollide(self.mob,self.proyectil_list, True)
             for _ in mob_hit_list:
-                self.mob.vida -= 1 
+                self.mob.vida -= 1
+                self.score += 1 
                 self.mob.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_damage.png')).convert_alpha()
             
             #!MINIONS Y MOBS SECUNDARIOS            
-            if len(self.corazon_list) == 0:
+            if len(self.minion_list) == 0:
                 for i in range(self.nivel_dificultad):
-                    self.nivel_dificultad += 1
-                    self.minion_1 = Corazon()
-                    self.minion_1.speed += self.nivel_dificultad
+                    self.nivel_dificultad = 10
+                    self.minion_1 = Minion()
+                    self.minion_1.speed += 0
                     self.minion_1.image = pygame.image.load(os.path.join('models','skill','pointed_dripstone.png'))
-                    self.corazon_list.add(self.minion_1)
-                    self.all_sprites_list.add(self.minion_1)
+                    self.minion_list.add(self.minion_1)
+                    self.sprites.add(self.minion_1)
 
             #Daño y pérdida de vida
-            player_hit_list = pygame.sprite.spritecollide(self.player, self.corazon_list, True)
+            
+            player_hit_list = pygame.sprite.spritecollide(self.player, self.minion_list, True)
             player_hit_list += pygame.sprite.spritecollide(self.player, self.mob_atack_list, True)
-            for _ in player_hit_list:
-                self.player.vidas -= 1
-                soundtrack.daño_recibido.play()
-
+            
+            if not self.player.guardia_activa:
+                for _ in player_hit_list:
+                    self.player.vidas -= 1
+                    class_soundtrack.daño_recibido.play()
+            if player_hit_list:
+                self.player.guardia_activa = False
+                self.player.image = pygame.image.load(os.path.join('models','player','player_meditate.png')).convert_alpha()
+            
             #Puntuación y score    
-            success_shot_list = pygame.sprite.groupcollide(self.proyectil_list, self.corazon_list, False,True)    
+            success_shot_list = pygame.sprite.groupcollide(self.proyectil_list, self.minion_list, self.autodestruccion,True)    
             for shot in success_shot_list:
+                
                 self.score += 1
-                self.player.amount_charge += 2
-                soundtrack.coins.play()
+                self.player.amount_charge += 1
+                class_soundtrack.coins.play()
             
             
             #! BONIFICACIONES Y CONTROL DE ATAQUE
-            num_proyectiles = 3
-            if len(self.proyectil_list) > num_proyectiles:
-                sprite_a_eliminar = self.proyectil_list.sprites()[num_proyectiles]
+            if len(self.proyectil_list) > self.player.limite_proyectil:
+                sprite_a_eliminar = self.proyectil_list.sprites()[self.player.limite_proyectil]
                 sprite_a_eliminar.kill()
+
+            if pygame.sprite.spritecollide(self.player,self.items_list, True):
+                if self.item.autodestruccion == False:
+                    self.player.clasificar_proyectil(self.sprites, self.item)
+                    self.item.autodestruccion = True
+                    self.item.kill()
+
+            if random.randint(0,500) == 500:
+                self.item = Items()
+                self.sprites.add(self.item)
+            self.items_list.add(self.item)
 
             #!Condición de GAME OVER
             if self.player.vidas == 0:
@@ -198,37 +236,53 @@ class Game(object):
             else:
                 self.n = 0
         self.background = obtener_background_path()
-        background= pygame.image.load(self.background[self.n]).convert()
-        background_resized=pygame.transform.scale(background, (ancho, alto))
-        screen.blit(background_resized, [0,0])
-       
+        background= pygame.image.load(self.background[9]).convert_alpha()
+        suelo = pygame.image.load(os.path.join('background','mountain','suelo_2.png')).convert_alpha()
+
+
+        #En la siguiente linea: la posición del jugador se le resta la cámara (0) y el ancho (si dividimos ancho//2 me quedo sin pantalla!!!)
+        self.camera += (self.player.rect.x/2 - self.camera - ancho)
+        screen.blit(background, [-900-self.camera, 0])
+        screen.blit(suelo, [0,520])
+
+
        #TODO Animaciones en movimiento propias del jugador
         if self.player.speed_x > 0:
             self.player.image=pygame.image.load(self.player.lista_caminar[self.n]).convert_alpha()
 
 
         #TODO Bloques en pantalla
-        for block in self.blocks_list:
-            block.image=pygame.image.load(self.block_path_png[self.n]).convert_alpha()
         
-       
+    
 
         #! PANTALLA DE FIN DEL JUEGO
-        if self.game_over and len(self.corazon_list) == 0:
-            textos_pantalla.texto_game_over_1(black,ancho,alto,screen)
-        elif self.game_over and self.player.vidas == 0:
-            textos_pantalla.texto_game_over_2(black,ancho,alto,screen)
+        if self.game_over:
+            textos_pantalla.texto_1(white,ancho,alto,screen, "Haz click en pantalla para reiniciar")
+            pygame.mouse.set_visible(True)
+        
+       
+        self.button.update()
+        self.button.changeColor(pygame.mouse.get_pos())
         
 
-        #! PANTALLA SI NO ES FIN DEL JUEGO
+        #!MENU PRINCIPAL DEL JUEGO
+        if self.open_menu:
+            self.main_menu()
+
+        #! STATS Y PUNTUACIONES
         if not self.game_over:
-            textos_pantalla.texto_puntuacion(screen, self.score)
+            textos_pantalla.texto_variable(screen, self.score, 710,10)
             stats.hearts(screen, self.player.vidas)
-
-
-            #!Este de aquí es obligatorio para actualizar lo que se ve en pantalla
-            self.all_sprites_list.draw(screen) 
+            ruta = os.path.join('models', 'particle', 'mana.png')
+            stats.generar_stat(screen, self.player.limite_proyectil, ruta, 10, 50, 10, len(self.proyectil_list))
+            if self.mob.aparicion == True:
+                stats.hearts_mob(screen,self.mob.vida)
+            textos_pantalla.texto_cargas(screen, self.player.amount_charge)
             
+            #!Este de aquí es obligatorio para actualizar lo que se ve en pantalla
+            self.sprites.draw(screen) 
+
+
         pygame.display.flip()
 
 def main():
@@ -237,12 +291,16 @@ def main():
     pygame.display.set_caption("Coordenadas del Ratón")
     done= False
     clock = pygame.time.Clock()
-    game = Game()
+    game = Game_2()
     while not done:
-        done = game.process_events()
-        game.run_logic()
-        game.display_frame(screen)
-        clock.tick(60)
+        if game.nivel == 1:
+            done = game.process_events(screen)
+            game.run_logic()
+            game.display_frame(screen)
+            
+        if game.nivel == 2:
+            _lvl_2.main()
+
     pygame.quit()
 
 if __name__ == "__main__":
