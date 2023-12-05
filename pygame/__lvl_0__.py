@@ -34,7 +34,7 @@ from class_button import Button
 from class_mouse import Mouse
 import _lvl_2
 
-class Game_2(object):
+class Game(object):
     def __init__(self):
         pygame.display.set_caption("Tales of Sandstone") 
         self.nivel = 1
@@ -78,6 +78,7 @@ class Game_2(object):
         self.item = Items()
         self.mob = Mob()
         self.button = Button(ancho//2,50, "Menu")
+        
         self.mouse = Mouse()
         self.player = Player()
         self.x = self.player.rect.x
@@ -303,7 +304,7 @@ def main():
     pygame.display.set_caption("Coordenadas del Ratón")
     done= False
     clock = pygame.time.Clock()
-    game = Game_2()
+    game = Game()
     while not done:
         if game.nivel == 1:
             done = game.process_events(screen)

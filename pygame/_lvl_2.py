@@ -18,7 +18,7 @@ numero_frames = 5
 
 
 #todo ANTES DE CLASS GAME, PODRÍAN IR TODAS LAS CLASES IMPORTADAS
-import __main__
+import __lvl_0__
 
 from class_mobs import Minion
 from class_mobs import Mob
@@ -44,7 +44,7 @@ class Game_2(object):
         self.nivel_dificultad = 1
         self.autodestruccion= True
         self.camera = 0
-        self.open_menu= False
+      
     
 
         # TODOS LAS LISTAS QUE VAMOS A UTILIZAR
@@ -64,10 +64,11 @@ class Game_2(object):
             self.sprites.add(self.minion)  
             self.minion_list.add(self.minion)
         
-        self.menu = Menu()
+        self.menu = Menu(self.nivel)
         self.item = Items()
         self.mob = Mob()
         self.button = Button(ancho//2,50, "Menu")
+        self.inventario = Button (800, 50, "Inventario")
         self.mouse = Mouse()
         self.player = Player()
         self.x = self.player.rect.x
@@ -80,7 +81,7 @@ class Game_2(object):
         self.sprites.add(self.mouse)
         self.sprites.add(self.player)
         self.sprites.add(self.item)
-        self.sprites.add(self.soundtrack)
+        
        
         #Ocultamos cursor
         pygame.mouse.set_visible(False)
@@ -94,50 +95,23 @@ class Game_2(object):
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # 1 representa el botón izquierdo del ratón
                 MOUSE_POSITION = pygame.mouse.get_pos()
                 if self.button.checkForInput(MOUSE_POSITION):
-                    print("primer control de botón presionado!")
-                    self.open_menu= True
+                    self.menu.open_menu= True
  
             #soundtrack.control_audio(event,screen,soundtrack)
             self.player.controles_1(event,self.sprites,self.proyectil_list)
-            self.soundtrack.control_audio(event,screen)
+            
+            if self.menu.open_menu == True:
+                self.soundtrack.control_audio(event,screen)
  
             #CREAMOS UNA NUEVA LÓGICA PARA REINICIAR EL JUEGO
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.game_over:
-                    if self.game_over:
-                        self.__init__()
+                    self.__init__()
 
         # Esto retornará false y está almacenado en la variable "done"
         return False
 
-    def main_menu(self):
-        if not self.game_over:
-            MOUSE_POSITION = pygame.mouse.get_pos()
 
-            play_button = Button(ancho//2,150, "Reanudar")
-            restart_button = Button(ancho//2,200, "Reiniciar")
-            save_button = Button(ancho//2,250, "Guardar")
-            load_button = Button(ancho//2,300, "Cargar")
-            level_button = Button(ancho//2,300, "Cambiar de nivel")
-
-            for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # 1 representa el botón izquierdo del ratón
-                    mouse_position = pygame.mouse.get_pos()
-                    if play_button.checkForInput(mouse_position):
-                        self.open_menu = False
-                    if restart_button.checkForInput(mouse_position):    
-                        self.game_over = True
-                    if save_button.checkForInput (mouse_position):
-                        ...
-                    if load_button.checkForInput(mouse_position):
-                        ...
-                    if level_button.checkForInput(mouse_position):
-                        self.nivel = 1
-
-            for button in [play_button, restart_button, save_button, load_button, level_button]:
-                button.changeColor(MOUSE_POSITION)
-                button.update()
-                
 
     def run_logic(self):
         if not self.game_over:
@@ -214,8 +188,12 @@ class Game_2(object):
             self.items_list.add(self.item)
 
             #!Condición de GAME OVER
-            if self.player.vidas == 0:
+            if self.player.vidas == 0 or self.menu.game_over == True:
                 self.game_over = True
+            if self.menu.nivel == 1:
+                self.nivel = 1
+                print ("control 2")
+
             
     def display_frame(self,screen):
         #TODO Este es el contador que ralentizará las animaciones
@@ -250,17 +228,21 @@ class Game_2(object):
             textos_pantalla.texto_1(white,ancho,alto,screen, "Haz click en pantalla para reiniciar")
             pygame.mouse.set_visible(True)
         
-       
         self.button.update()
         self.button.changeColor(pygame.mouse.get_pos())
         
 
         #!MENU PRINCIPAL DEL JUEGO
-        if self.open_menu:
+        if self.menu.open_menu:
             self.menu.main_menu()
+            self.sprites.add(self.soundtrack)
+            
+        if not self.menu.open_menu:
+            self.soundtrack.kill()
+
 
         #! STATS Y PUNTUACIONES
-        if not self.game_over:
+        if not self.game_over and not self.menu.open_menu:
             textos_pantalla.texto_variable(screen, self.score, 710,10)
             stats.hearts(screen, self.player.vidas)
             ruta = os.path.join('models', 'particle', 'mana.png')
@@ -282,6 +264,7 @@ def main():
     done= False
     clock = pygame.time.Clock()
     game_2 = Game_2()
+    
     while not done:
         if game_2.nivel == 2:
             done = game_2.process_events(screen)
@@ -289,11 +272,13 @@ def main():
             game_2.display_frame(screen)
             clock.tick(60)
 
-    
-    
+        elif game_2.nivel == 1:
+            print ("ahora debería ejecutarse el nivel 0")
+            __lvl_0__.main()
+        
+
     pygame.quit()
 
-game_2 = Game_2
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,4 @@
-import pygame,glob,random
+import pygame,glob,random, mis_funciones
 import os
 from class_proyectil import Proyectil
 from class_items import Items
@@ -24,8 +24,7 @@ class Player(pygame.sprite.Sprite):
         self.vidas = 10
         self.direction = "right"
 
-       
-        
+     
         # variables del salto,caida y gravedad
         self.jumping = False
         self.jump_count = 10

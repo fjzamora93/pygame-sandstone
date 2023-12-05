@@ -1,7 +1,7 @@
 import pygame, sys, os
 from tkinter import *
 from pygame import *
-
+from class_button import Button
 
 
 font= pygame.font.SysFont("arial",40)
@@ -15,37 +15,45 @@ numero_frames = 5
 
 
 class Menu(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, nivel):
         super().__init__()
+        self.nivel = nivel
+        self.open_menu= False
+        self.game_over = False
 
     def main_menu(self):
         if not self.game_over:
             MOUSE_POSITION = pygame.mouse.get_pos()
 
-            play_button = Button(ancho//2,150, "Reanudar")
-            restart_button = Button(ancho//2,200, "Reiniciar")
-            save_button = Button(ancho//2,250, "Guardar")
-            load_button = Button(ancho//2,300, "Cargar")
-            level_button = Button(ancho//2,300, "Cambiar de nivel")
+            self.play_button = Button(ancho//2,150, "Reanudar")
+            self.restart_button = Button(ancho//2,200, "Reiniciar")
+            self.save_button = Button(ancho//2,250, "Guardar")
+            self.load_button = Button(ancho//2,300, "Cargar")
+            self.level_button = Button(ancho//2,300, "Cambiar de nivel")
+
+            
 
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # 1 representa el botón izquierdo del ratón
                     mouse_position = pygame.mouse.get_pos()
-                    if play_button.checkForInput(mouse_position):
+                    if self.play_button.checkForInput(mouse_position):
                         self.open_menu = False
-                    if restart_button.checkForInput(mouse_position):    
+                        
+                    if self.restart_button.checkForInput(mouse_position):    
                         self.game_over = True
-                    if save_button.checkForInput (mouse_position):
+                       
+                    if self.save_button.checkForInput (mouse_position):
                         ...
-                    if load_button.checkForInput(mouse_position):
+                    if self.load_button.checkForInput(mouse_position):
                         ...
-                    if level_button.checkForInput(mouse_position):
+                    if self.level_button.checkForInput(mouse_position):
                         if self.nivel == 1:
                             self.nivel = 2
                         elif self.nivel == 2:
                             self.nivel = 1
+                            print("segundo control activado")
 
-            for button in [play_button, restart_button, save_button, load_button, level_button]:
+            for button in [self.play_button, self.restart_button, self.save_button, self.load_button, self.level_button]:
                 button.changeColor(MOUSE_POSITION)
                 button.update()
 
