@@ -169,22 +169,22 @@ class Player(pygame.sprite.Sprite):
         self.amount_charge += 5
         if item.list_path_random == "models/items\manzana.png":
             self.vidas += 1
-            self.limite_proyectil += 2
+            self.limite_proyectil = 2
         if item.list_path_random == "models/items\gema.png":
             self.vidas += 2
-            self.limite_proyectil += 2
+            self.limite_proyectil = 3
         if item.list_path_random == "models/items\pearl.png":
             self.proyectil_case = 1
-            self.limite_proyectil += 2
+            self.limite_proyectil = 2
         if item.list_path_random == "models/items\libro.png":
             self.proyectil_case = 2
-            self.limite_proyectil += 2
+            self.limite_proyectil = 3
         if item.list_path_random == "models/items\diamond.png":
             self.proyectil_case = 3
-            self.limite_proyectil += 2
+            self.limite_proyectil = 2
         if item.list_path_random == "models/items\emerald.png":
             self.proyectil_case = 4
-            self.limite_proyectil += 2
+            self.limite_proyectil = 2
             self.autodestruccion = False
         
                 

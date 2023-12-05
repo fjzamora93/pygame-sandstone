@@ -275,7 +275,7 @@ class Game(object):
             textos_pantalla.texto_variable(screen, self.score, 710,10)
             stats.hearts(screen, self.player.vidas)
             ruta = os.path.join('models', 'particle', 'mana.png')
-            stats.generar_stat(screen, self.player.limite_proyectil, ruta, 10, 50, 10)
+            stats.generar_stat(screen, self.player.limite_proyectil, ruta, 10, 50, 10, len(self.proyectil_list))
             if self.mob.aparicion == True:
                 stats.hearts_mob(screen,self.mob.vida)
             textos_pantalla.texto_cargas(screen, self.player.amount_charge)

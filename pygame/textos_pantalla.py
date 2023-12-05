@@ -30,15 +30,7 @@ def texto_variable(screen, score, x, y):
 def texto_cargas(screen, cargas_acumuladas):
     font= pygame.font.SysFont("consolas",40)
     proyectil_actual = pygame.image.load(os.path.join('models','skill','charges.png'))
-    screen.blit(proyectil_actual,[15,60])
+    screen.blit(proyectil_actual,[20,100])
     cargas_acumuladas = font.render(f"    x {cargas_acumuladas}", True, white)
-    screen.blit(cargas_acumuladas, [10, 50])
+    screen.blit(cargas_acumuladas, [10, 100])
 
-
-
-def texto_random(black,ancho,alto,screen,texto):
-    font= pygame.font.SysFont("consolas", 40)
-    text = font.render(texto, True, black) 
-    center_x = (ancho//2 ) - (text.get_width()//2)
-    center_y= (alto//2) - (text.get_height()//2)
-    screen.blit(text, [center_x, center_y])

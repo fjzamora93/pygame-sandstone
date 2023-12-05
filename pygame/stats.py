@@ -6,17 +6,15 @@ black = (0,0,0)
 white = (255,255,255)
 
 
-def generar_stat(screen, stat, ruta, x, y, z):
+def generar_stat(screen, stat, ruta, x, y, z, proyectil_list):
     coordenadas = []
-    for i in range (stat):
+    for i in range(stat-proyectil_list):
         x = z + i*20 #z es la separacion
         y = y
         coordenadas.append([x,y])
     for coordenada in coordenadas:
         sprite = pygame.image.load(ruta).convert_alpha()
         screen.blit (sprite,coordenada)
-
-
 
 
 def hearts(screen,vidas):

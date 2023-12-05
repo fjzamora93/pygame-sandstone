@@ -75,7 +75,7 @@ class Mob(pygame.sprite.Sprite):
             
         
     def atacar(self,all_sprites_list, mob_atack_list, player_position):
-        self.mob_atack = Proyectil(self.rect.x,self.rect.y,self.direction)
+        self.mob_atack = Proyectil(self.rect.x,self.rect.y,self.direction,3)
         self.mob_atack.skill = -5 #PON EN NEGATIVO LA SKILL DEL MOB, EN POSITIVO LAS DEL PLAYER
         self.mob_atack.vector = "horizontal"
         self.mob_atack.speed = 3
@@ -90,7 +90,7 @@ class Mob(pygame.sprite.Sprite):
         mob_atack_list.add(self.mob_atack)
 
     def misil(self,all_sprites_list, mob_atack_list, player_position):
-        self.mob_atack = Proyectil(self.rect.x,self.rect.y,self.direction)
+        self.mob_atack = Proyectil(self.rect.x,self.rect.y,self.direction,3)
         self.mob_atack.skill = -3
         self.mob_atack.vector = "vertical"
         self.mob_atack.target = player_position
