@@ -4,18 +4,14 @@ from class_proyectil import Proyectil
 from class_items import Items
 ancho = 900
 alto = 554
-carpeta= 'models/player/caminar'
-patron_png = os.path.join(carpeta, '*.png')
-player_caminar_list=[]
-player_caminar_list = glob.glob(patron_png)
-
 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load(os.path.join('models', 'player', 'player.png')).convert_alpha()
-        self.lista_caminar = player_caminar_list #La tengo aquí por tenerla....
+        self.sprites_player = mis_funciones.obtener_ruta('models/player')
+        
+        self.image = pygame.image.load(os.path.join(self.sprites_player[0])).convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.x = 50
         self.rect.y = 480
@@ -37,33 +33,25 @@ class Player(pygame.sprite.Sprite):
         self.proyectil_case=0
         self.guardia_activa = True
         self.limite_proyectil = 1
-        
-        
-    def changespeed_x(self, x):
-        self.speed_x += x
-        if x > 0:
-            self.image = pygame.image.load(os.path.join(player_caminar_list[random.randint(0,5)])).convert_alpha()
-            self.direction = "right"
-        elif x < 0:
-            self.image = self.inverted_image
-            self.direction = "left"
-        
+        self.destruccion_proyectil = False
+
+       
 
     def update(self):  
-         #Sprites
-        self.caminar_derecha= pygame.image.load(os.path.join(player_caminar_list[random.randint(0,5)])).convert_alpha()
-        self.inverted_image = pygame.transform.flip(self.caminar_derecha, True, False)
-        #contador interno de animacion
-        #if not self.jumping and  and self.colision_block == False:
-            #self.speed_y = 5
-        
-      
+        if self.speed_x > 0:
+            self.image=pygame.image.load(self.sprites_player[random.randint(1,9)]).convert_alpha()
+            self.direction = "right"
+        if self.speed_x < 0:
+            caminar = pygame.image.load(self.sprites_player[random.randint(1,9)]).convert_alpha()
+            self.image = pygame.transform.flip(caminar, True, False) #invierte la imagen
+            self.direction = "left"
+
         if self.is_falling and not self.jumping and self.rect.y < 480:
             self.speed_y = 5
         self.rect.x += self.speed_x
         self.rect.y += self.speed_y
 
-        #LÍMITES DEL CAMPA
+        #LÍMITES DEL CAMARA
         if self.rect.y > 480:
             self.rect.y = 480
         if self.rect.x < 10:
@@ -80,14 +68,18 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.jump_count = 10
                 self.jumping = False
-                
 
+        #CONDICIONES ESPECIALES      
+        if self.speed_x != 0:
+            self.guardia_activa = False
+
+ 
     def atack(self,skill):
         match skill:
             case 0:
-                self.image = pygame.image.load(os.path.join('models','player','player_sword_right.png')).convert_alpha()
+                self.image = pygame.image.load(self.sprites_player[23]).convert_alpha()
                 if self.direction == "left":
-                    self.image = pygame.image.load(os.path.join('models','player','player_sword_left.png')).convert_alpha()
+                    self.image = pygame.transform.flip(pygame.image.load(self.sprites_player[23]).convert_alpha(), True, False)
             case 1:
                 self.image = pygame.image.load(os.path.join('models','player','arco', 'player_arco_5.png')).convert_alpha()
             case 2:
@@ -129,9 +121,9 @@ class Player(pygame.sprite.Sprite):
         if event.type == pygame.KEYDOWN:
             #Lógica de movimientos y salto
             if event.key == pygame.K_d:
-                self.changespeed_x(5)
+                self.speed_x = 5
             if event.key == pygame.K_a:
-                self.changespeed_x(-5)
+                self.speed_x = -5
             if event.key == pygame.K_s:
                 self.proteccion()
             
@@ -141,9 +133,10 @@ class Player(pygame.sprite.Sprite):
             
             #Lógica de ataques
             if event.key == pygame.K_SPACE:
-                self.proyectil = Proyectil(self.rect.x,self.rect.y,self.direction, self.limite_proyectil)
+                self.proyectil = Proyectil(self.rect.x, self.rect.y, self.direction, self.limite_proyectil)
                 self.proyectil.cargas_acumuladas = self.amount_charge
                 self.proyectil.skill = self.proyectil_case
+
                 self.atack(self.proyectil_case)
                 if self.proyectil.skill != 0:
                     self.amount_charge -= 1
@@ -152,12 +145,12 @@ class Player(pygame.sprite.Sprite):
                     self.proyectil.skill = 0
                     self.atack(0)
                     self.proyectil_case = 0
-                    self.autodestruccion = True
-            
+
                 self.proyectil.skill_set(all_sprites_list,proyectil_list)
             
             if event.key == pygame.K_q:
-                self.proyectil = Proyectil(self.rect.x,self.rect.y,self.direction, 3)
+                self.proyectil = Proyectil(self.rect.x, self.rect.y, self.direction, 3)
+                self.destruccion_proyectil = True
                 self.proyectil.vector = "vertical"
                 self.proyectil.skill = 5
                 self.proyectil.skill_set(all_sprites_list,proyectil_list)
@@ -171,25 +164,27 @@ class Player(pygame.sprite.Sprite):
 
     def clasificar_proyectil(self,all_sprites_list,item):      
         self.amount_charge += 5
+        self.destruccion_proyectil = True
         if item.list_path_random == "models/items\manzana.png":
             self.vidas += 1
             self.limite_proyectil = 2
-        if item.list_path_random == "models/items\gema.png":
+        if item.list_path_random == "models/items\manzana_dorada.png":
             self.vidas += 2
             self.limite_proyectil = 3
-        if item.list_path_random == "models/items\pearl.png":
+        if item.list_path_random == "models/items\larco.png":
             self.proyectil_case = 1
             self.limite_proyectil = 2
-        if item.list_path_random == "models/items\libro.png":
+        if item.list_path_random == "models/items\diamond.png":
             self.proyectil_case = 2
             self.limite_proyectil = 3
-        if item.list_path_random == "models/items\diamond.png":
+        if item.list_path_random == "models/items\lantern.png":
             self.proyectil_case = 3
             self.limite_proyectil = 2
-        if item.list_path_random == "models/items\emerald.png":
+        if item.list_path_random == "models/items\libro.png":
             self.proyectil_case = 4
-            self.limite_proyectil = 2
-            self.autodestruccion = False
+            self.limite_proyectil = 1
+            self.destruccion_proyectil = False
+        
         
                 
         

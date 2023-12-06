@@ -259,10 +259,6 @@ class Game(object):
         screen.blit(suelo, [0,520])
 
 
-       #TODO Animaciones en movimiento propias del jugador
-        if self.player.speed_x > 0:
-            self.player.image=pygame.image.load(self.player.lista_caminar[self.n]).convert_alpha()
-
 
         #TODO Bloques en pantalla
         

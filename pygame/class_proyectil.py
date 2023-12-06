@@ -29,6 +29,7 @@ class Proyectil(pygame.sprite.Sprite):
         self.speed_y = 0
         self.limite = n
         self.cargas_acumuladas = 0
+        self.autodestruccion = True
 
         #Solo para el mob (de ahí que esté en negativo)
         self.target = -10
@@ -95,7 +96,7 @@ class Proyectil(pygame.sprite.Sprite):
             self.image = pygame.image.load(os.path.join('models','skill','arrow.png')).convert_alpha()
             self.speed_y += 0.5
             self.speed = 10
-            print ("LIMITE A 5!!")
+           
             class_soundtrack.arco.play()
             self.vector = "horizontal"
             if self.direction == "left":

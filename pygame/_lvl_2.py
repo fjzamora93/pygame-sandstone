@@ -41,8 +41,8 @@ class Game_2(object):
         self.score = 0
         self.n = 0
         self.contador_1 = 0
-        self.nivel_dificultad = 1
-        self.autodestruccion= True
+       
+    
         self.camera = 0
       
     
@@ -66,6 +66,7 @@ class Game_2(object):
         
         self.menu = Menu(self.nivel)
         self.item = Items()
+        self.boss = Mob()
         self.mob = Mob()
         self.button = Button(ancho//2,50, "Menu")
         self.inventario = Button (800, 50, "Inventario")
@@ -117,14 +118,42 @@ class Game_2(object):
         if not self.game_over:
             self.sprites.update()
 
-            #!BOSS Y MOBS PRINCIPALES
+            #!BOSS 
             if self.score % 20 == 0:
+                if self.boss.vida <= 1:
+                    self.boss.kill()
+                    self.boss = Mob()
+                    self.boss.aparicion = False      
+            if self.score > 10:
+                self.boss.spawn(self.player.rect.x, self.player.rect.y)
+                self.boss.accion_aleatoria(self.sprites, self.mob_atack_list,self.player.rect.x)
+                self.mob_list.add(self.boss)
+
+            if pygame.Rect.colliderect(self.player.rect, self.boss.rect) and self.boss.vida > 0:
+                if self.boss.temporizador == 10: #ralentiza ticks para que el mob haga menos daño por colision
+                    self.player.vidas -=1
+            #Daño al mob        
+           
+            mob_hit_list = pygame.sprite.spritecollide(self.boss,self.proyectil_list, True)
+            for _ in mob_hit_list:
+                self.boss.vida -= 1
+                self.score += 1 
+                self.boss.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_damage.png')).convert_alpha()
+
+            fuegos_cruzados = pygame.sprite.groupcollide(self.proyectil_list,self.mob_atack_list, False, True)
+
+            #! MOB 
+            if self.score % 10 == 0:
                 if self.mob.vida <= 1:
                     self.mob.kill()
                     self.mob = Mob()
-                    self.mob.aparicion = False      
-            if self.score > 10:
+                    
+                    self.mob.aparicion = False     
+                    
+            if self.score > 1:
                 self.mob.spawn(self.player.rect.x, self.player.rect.y)
+                self.mob.image = pygame.image.load(os.path.join('models','entity','armored_skeleton','armored_skeleton_front.png')).convert_alpha()
+                self.mob.vida = 5 
                 self.mob.accion_aleatoria(self.sprites, self.mob_atack_list,self.player.rect.x)
                 self.mob_list.add(self.mob)
 
@@ -132,17 +161,18 @@ class Game_2(object):
                 if self.mob.temporizador == 10: #ralentiza ticks para que el mob haga menos daño por colision
                     self.player.vidas -=1
             #Daño al mob        
-            fuegos_cruzados = pygame.sprite.groupcollide(self.proyectil_list,self.mob_atack_list, False, True)
+           
             mob_hit_list = pygame.sprite.spritecollide(self.mob,self.proyectil_list, True)
             for _ in mob_hit_list:
                 self.mob.vida -= 1
                 self.score += 1 
-                self.mob.image = pygame.image.load(os.path.join('models','entity','necromancer','necromancer_damage.png')).convert_alpha()
-            
-            #!MINIONS Y MOBS SECUNDARIOS            
+                
+
+            fuegos_cruzados = pygame.sprite.groupcollide(self.proyectil_list,self.mob_atack_list, False, True)
+
+            #!MINIONS             
             if len(self.minion_list) == 0:
-                for i in range(self.nivel_dificultad):
-                    self.nivel_dificultad = 10
+                for i in range(self.nivel*5):
                     self.minion_1 = Minion()
                     self.minion_1.speed += 0
                     self.minion_1.image = pygame.image.load(os.path.join('models','skill','pointed_dripstone.png'))
@@ -163,7 +193,7 @@ class Game_2(object):
                 self.player.image = pygame.image.load(os.path.join('models','player','player_meditate.png')).convert_alpha()
             
             #Puntuación y score    
-            success_shot_list = pygame.sprite.groupcollide(self.proyectil_list, self.minion_list, self.autodestruccion,True)    
+            success_shot_list = pygame.sprite.groupcollide(self.proyectil_list, self.minion_list, self.player.destruccion_proyectil, True)    
             for shot in success_shot_list:
                 
                 self.score += 1
@@ -182,7 +212,8 @@ class Game_2(object):
                     self.item.autodestruccion = True
                     self.item.kill()
 
-            if random.randint(0,500) == 500:
+            if random.randint(0,1) == 1 and self.score%5 == 0 and self.score != 0:
+                self.score +=1 
                 self.item = Items()
                 self.sprites.add(self.item)
             self.items_list.add(self.item)
@@ -217,10 +248,6 @@ class Game_2(object):
         screen.blit(suelo, [0,520])
 
 
-       #TODO Animaciones en movimiento propias del jugador
-        if self.player.speed_x > 0:
-            self.player.image=pygame.image.load(self.player.lista_caminar[self.n]).convert_alpha()
-
     
 
         #! PANTALLA DE FIN DEL JUEGO
@@ -247,8 +274,8 @@ class Game_2(object):
             stats.hearts(screen, self.player.vidas)
             ruta = os.path.join('models', 'particle', 'mana.png')
             stats.generar_stat(screen, self.player.limite_proyectil, ruta, 10, 50, 10, len(self.proyectil_list))
-            if self.mob.aparicion == True:
-                stats.hearts_mob(screen,self.mob.vida)
+            if self.boss.aparicion == True:
+                stats.hearts_mob(screen,self.boss.vida)
             textos_pantalla.texto_cargas(screen, self.player.amount_charge)
             
             #!Este de aquí es obligatorio para actualizar lo que se ve en pantalla

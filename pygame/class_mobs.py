@@ -42,6 +42,7 @@ class Mob(pygame.sprite.Sprite):
         self.jumping = False
         self.jump_count = 10
         self.listado_acciones= ["atacar","desplazarse", "misil", "pausa", "salto"]
+        
 
     def accion_aleatoria(self, all_sprites_list, mob_atack_list,player_position):
         if self.vida > 0:
