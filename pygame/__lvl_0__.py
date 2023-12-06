@@ -134,19 +134,17 @@ class Game(object):
             self.player.deteccion_colision(self.platform_list,self.platform_2.rect,self.platform_2.rect.y,self.platform_2.rect.top,self.platform_2.rect.left,self.platform_2.rect.right)
 
             #!BOSS Y MOBS PRINCIPALES
-            if self.score % 20 == 0:
+            if self.score > 10:
                 if self.mob.vida <= 1:
                     self.mob.kill()
                     self.mob = Mob()
                     self.mob.aparicion = False
                     self.nivel = 2
-
-            #!CONDICON PUESTA PARA PASAR DE NIVEL
-            if self.score > 1:
+            if self.score > 5:
                 self.mob.spawn(self.player.rect.x, self.player.rect.y)
                 self.mob.accion_aleatoria(self.sprites, self.mob_atack_list,self.player.rect.x)
                 self.mob_list.add(self.mob)
-                self.nivel = 2
+           
 
             if pygame.Rect.colliderect(self.player.rect, self.mob.rect) and self.mob.vida > 0:
                 if self.mob.temporizador == 10: #ralentiza ticks para que el mob haga menos daño por colision
