@@ -29,8 +29,6 @@ def hearts(screen,vidas):
 
 
 
-
-
 def hearts_mob(screen,vidas_mob,):
     coordenadas=[]
     for i in range(vidas_mob):
