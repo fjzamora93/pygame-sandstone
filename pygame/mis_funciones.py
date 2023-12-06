@@ -1,5 +1,5 @@
 #Archivo con varias funciones útiles en cualquier caso:
-import os,glob
+import os,glob,pygame
 
 
 
@@ -13,6 +13,10 @@ def obtener_ruta(carpeta_destino):
 #path_list es la lista donde vamos a guardar cosas.
 #glob.glob() nos devuelve los archivos del patron_png y nos lo mete en la lista.
 #return nos indica lo que devuelve la función, para almacenarlo en una variable (por lo general tendrá el mismo nombre)
+
+
+
+
 
 
 def contador (n,m):

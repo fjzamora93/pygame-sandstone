@@ -1,7 +1,7 @@
 
 
 import pygame, random, os
-import class_soundtrack,textos_pantalla,stats, mis_funciones
+import class_soundtrack,textos_pantalla,stats, mis_funciones, mis_sprites
 from tkinter import *
 pygame.mixer.init() #Para reproducir sonidos, guapi
 
@@ -41,7 +41,7 @@ class Game_2(object):
         self.score = 0
         self.n = 0
         self.contador_1 = 0
-       
+        self.sprites_nivel = f'background/{self.nivel}'
     
         self.camera = 0
       
@@ -68,8 +68,8 @@ class Game_2(object):
         self.item = Items()
         self.boss = Mob()
         self.mob = Mob()
-        self.button = Button(ancho//2,50, "Menu")
-        self.inventario = Button (800, 50, "Inventario")
+        self.button = Button(ancho//2,50, "Menu", 'models/menu', 0)
+        self.inventario = Button (800, 50, "", 'models/menu', 2)
         self.mouse = Mouse()
         self.player = Player()
         self.x = self.player.rect.x
@@ -124,7 +124,7 @@ class Game_2(object):
                     self.boss.kill()
                     self.boss = Mob()
                     self.boss.aparicion = False      
-            if self.score > 10:
+            if self.score > 20:
                 self.boss.spawn(self.player.rect.x, self.player.rect.y)
                 self.boss.accion_aleatoria(self.sprites, self.mob_atack_list,self.player.rect.x)
                 self.mob_list.add(self.boss)
@@ -150,7 +150,7 @@ class Game_2(object):
                     
                     self.mob.aparicion = False     
                     
-            if self.score > 1:
+            if self.score > 10:
                 self.mob.spawn(self.player.rect.x, self.player.rect.y)
                 self.mob.image = pygame.image.load(os.path.join('models','entity','armored_skeleton','armored_skeleton_front.png')).convert_alpha()
                 self.mob.vida = 5 
@@ -236,8 +236,8 @@ class Game_2(object):
                 self.n += 1
             else:
                 self.n = 0
-        self.background = obtener_background_path()
-        background= pygame.image.load(self.background[0]).convert_alpha()
+        background= mis_sprites.cargar_sprite(self.sprites_nivel, 0)
+       
         suelo = pygame.image.load(os.path.join('background','mountain','suelo_2.png')).convert_alpha()
 
 
@@ -256,11 +256,14 @@ class Game_2(object):
             pygame.mouse.set_visible(True)
         
         self.button.update()
+        self.inventario.update()
         self.button.changeColor(pygame.mouse.get_pos())
+        self.inventario.changeColor(pygame.mouse.get_pos())
         
 
         #!MENU PRINCIPAL DEL JUEGO
         if self.menu.open_menu:
+            pygame.mouse.set_visible(True)
             self.menu.main_menu()
             self.sprites.add(self.soundtrack)
             
@@ -270,6 +273,7 @@ class Game_2(object):
 
         #! STATS Y PUNTUACIONES
         if not self.game_over and not self.menu.open_menu:
+            pygame.mouse.set_visible(False)
             textos_pantalla.texto_variable(screen, self.score, 710,10)
             stats.hearts(screen, self.player.vidas)
             ruta = os.path.join('models', 'particle', 'mana.png')

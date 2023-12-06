@@ -6,7 +6,7 @@ Librería de artes gratis: https://opengameart.org/content/lpc-medieval-fantasy-
 
 import pygame, random, os
 import class_soundtrack,textos_pantalla,stats, mis_funciones
-from tkinter import *
+
 pygame.mixer.init() #Para reproducir sonidos, guapi
 
 
@@ -32,6 +32,7 @@ from class_items import Items
 from class_soundtrack import Soundtrack
 from class_button import Button
 from class_mouse import Mouse
+from class_menu import Menu
 import _lvl_2
 
 class Game(object):
@@ -77,7 +78,9 @@ class Game(object):
        
         self.item = Items()
         self.mob = Mob()
-        self.button = Button(ancho//2,50, "Menu")
+        self.menu = Menu(self.nivel)
+        self.button = Button(ancho//2,50, "Menu", 'models/menu', 0)
+        self.inventario = Button (800, 50, "Inventario", 'models/menu', 3)
         
         self.mouse = Mouse()
         self.player = Player()
@@ -106,7 +109,7 @@ class Game(object):
                 MOUSE_POSITION = pygame.mouse.get_pos()
                 if self.button.checkForInput(MOUSE_POSITION):
                     print("primer control de botón presionado!")
-                    self.open_menu= True
+                    self.menu.open_menu = True
  
             #soundtrack.control_audio(event,screen,soundtrack)
             self.player.controles_1(event,self.sprites,self.proyectil_list)
@@ -121,36 +124,6 @@ class Game(object):
         # Esto retornará false y está almacenado en la variable "done"
         return False
 
-    def main_menu(self):
-        if not self.game_over:
-            MOUSE_POSITION = pygame.mouse.get_pos()
-
-            play_button = Button(ancho//2,150, "Reanudar")
-            restart_button = Button(ancho//2,200, "Reiniciar")
-            save_button = Button(ancho//2,250, "Guardar")
-            load_button = Button(ancho//2,300, "Cargar")
-            level_button = Button(ancho//2,300, "Cambiar de nivel")
-
-            for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # 1 representa el botón izquierdo del ratón
-                    mouse_position = pygame.mouse.get_pos()
-                    if play_button.checkForInput(mouse_position):
-                        self.open_menu = False
-                    if restart_button.checkForInput(mouse_position):    
-                        self.game_over = True
-                    if save_button.checkForInput (mouse_position):
-                        ...
-                    if load_button.checkForInput(mouse_position):
-                        ...
-                    if level_button.checkForInput(mouse_position):
-                        if self.nivel == 1:
-                            self.nivel = 2
-                        elif self.nivel == 2:
-                            self.nivel = 1
-
-            for button in [play_button, restart_button, save_button, load_button, level_button]:
-                button.changeColor(MOUSE_POSITION)
-                button.update()
                 
 
     def run_logic(self):
@@ -235,8 +208,11 @@ class Game(object):
             self.items_list.add(self.item)
 
             #!Condición de GAME OVER
-            if self.player.vidas == 0:
+            if self.player.vidas == 0 or self.menu.game_over == True:
                 self.game_over = True
+            if self.menu.nivel == 2:
+                self.nivel = 2
+            
             
     def display_frame(self,screen):
         #TODO Este es el contador que ralentizará las animaciones
@@ -260,26 +236,25 @@ class Game(object):
 
 
 
-        #TODO Bloques en pantalla
-        
-    
-
         #! PANTALLA DE FIN DEL JUEGO
         if self.game_over:
             textos_pantalla.texto_1(white,ancho,alto,screen, "Haz click en pantalla para reiniciar")
             pygame.mouse.set_visible(True)
         
-       
-        self.button.update()
-        self.button.changeColor(pygame.mouse.get_pos())
-        
 
         #!MENU PRINCIPAL DEL JUEGO
-        if self.open_menu:
-            self.main_menu()
+        if self.menu.open_menu:
+            self.menu.main_menu()
+            self.sprites.add(self.soundtrack)
+            
+        if not self.menu.open_menu:
+            self.soundtrack.kill()
+
+        self.button.update()
+        self.button.changeColor(pygame.mouse.get_pos())
 
         #! STATS Y PUNTUACIONES
-        if not self.game_over:
+        if not self.game_over and not self.menu.open_menu:
             textos_pantalla.texto_variable(screen, self.score, 710,10)
             stats.hearts(screen, self.player.vidas)
             ruta = os.path.join('models', 'particle', 'mana.png')

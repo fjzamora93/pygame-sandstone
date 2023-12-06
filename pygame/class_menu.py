@@ -21,26 +21,31 @@ class Menu(pygame.sprite.Sprite):
         self.open_menu= False
         self.game_over = False
 
+    def update (self):
+        if self.open_menu:
+            self.main_menu()
+
+
     def main_menu(self):
         if not self.game_over:
             MOUSE_POSITION = pygame.mouse.get_pos()
 
-            self.play_button = Button(ancho//2,150, "Reanudar")
-            self.restart_button = Button(ancho//2,200, "Reiniciar")
-            self.save_button = Button(ancho//2,250, "Guardar")
-            self.load_button = Button(ancho//2,300, "Cargar")
-            self.level_button = Button(ancho//2,300, "Cambiar de nivel")
-
-            
+            self.play_button = Button(ancho//2,150, "Reanudar", 'models/menu', 0)
+            self.restart_button = Button(ancho//2,200, "Reiniciar",'models/menu',0 )
+            self.save_button = Button(ancho//2,250, "Guardar", 'models/menu', 0)
+            self.load_button = Button(ancho//2,300, "Cargar", 'models/menu', 0)
+            self.level_button = Button(ancho//2,300, "Cambiar de nivel", 'models/menu', 0)
 
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # 1 representa el botón izquierdo del ratón
                     mouse_position = pygame.mouse.get_pos()
                     if self.play_button.checkForInput(mouse_position):
                         self.open_menu = False
+                        print ("botón presionado")
                         
                     if self.restart_button.checkForInput(mouse_position):    
                         self.game_over = True
+                        print ("botón presionado")
                        
                     if self.save_button.checkForInput (mouse_position):
                         ...

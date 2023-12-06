@@ -1,5 +1,5 @@
 import pygame,glob,random, mis_funciones
-import os
+import os, mis_sprites
 from class_proyectil import Proyectil
 from class_items import Items
 ancho = 900
@@ -9,9 +9,9 @@ alto = 554
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.sprites_player = mis_funciones.obtener_ruta('models/player')
+        self.sprites_player = mis_funciones.obtener_ruta('models/player') 
         
-        self.image = pygame.image.load(os.path.join(self.sprites_player[0])).convert_alpha()
+        self.image = mis_sprites.cargar_sprite('models/player', 0)
         self.rect = self.image.get_rect()
         self.rect.x = 50
         self.rect.y = 480
@@ -29,23 +29,33 @@ class Player(pygame.sprite.Sprite):
         self.pisando = False
 
         #Variables habilidades
+        self.n = 0 #mi contador de sprites
+        self.animacion = False
+        self.subcarpeta = None
+        
+        
+
+
         self.amount_charge = 0
         self.proyectil_case=0
         self.guardia_activa = True
         self.limite_proyectil = 1
         self.destruccion_proyectil = False
+        
 
        
 
     def update(self):  
-        if self.speed_x > 0:
-            self.image=pygame.image.load(self.sprites_player[random.randint(1,9)]).convert_alpha()
-            self.direction = "right"
-        if self.speed_x < 0:
-            caminar = pygame.image.load(self.sprites_player[random.randint(1,9)]).convert_alpha()
-            self.image = pygame.transform.flip(caminar, True, False) #invierte la imagen
-            self.direction = "left"
-
+        if self.speed_x != 0:
+            self.subcarpeta = 'caminar'
+            self.animacion = True
+            if self.speed_x > 0:
+                self.direction = "right"
+            elif self.speed_x < 0:
+                self.direction = "left"
+                
+            
+            
         if self.is_falling and not self.jumping and self.rect.y < 480:
             self.speed_y = 5
         self.rect.x += self.speed_x
@@ -73,28 +83,36 @@ class Player(pygame.sprite.Sprite):
         if self.speed_x != 0:
             self.guardia_activa = False
 
+        if self.animacion:
+            self.n += 1
+            if self.direction == "right":
+                self.image = mis_sprites.cargar_sprite(f'models/player/{self.subcarpeta}', self.n // 4)
+            elif self.direction == "left":
+                 self.image = pygame.transform.flip(mis_sprites.cargar_sprite(f'models/player/{self.subcarpeta}', self.n//4), True, False) #invierte la imagen
+            if self.n == 32:
+                self.n = 0
+                self.animacion = False
+             
+                
  
     def atack(self,skill):
+        self.n = 0
+        self.animacion = True
         match skill:
             case 0:
-                self.image = pygame.image.load(self.sprites_player[23]).convert_alpha()
-                if self.direction == "left":
-                    self.image = pygame.transform.flip(pygame.image.load(self.sprites_player[23]).convert_alpha(), True, False)
+                self.subcarpeta = 'sword'
             case 1:
-                self.image = pygame.image.load(os.path.join('models','player','arco', 'player_arco_5.png')).convert_alpha()
+                self.subcarpeta='arco'
             case 2:
-                self.image = pygame.image.load(os.path.join('models','player','player_summoning_1.png')).convert_alpha()
+                self.subcarpeta='concentrate'
             case 3:
-                self.image = pygame.image.load(os.path.join('models', 'player', 'player_concentrate.png')).convert_alpha()
-                if self.direction == "left":
-                    self.image = pygame.image.load(os.path.join('models','player','player_concentrate_left.png')).convert_alpha()
+                self.subcarpeta='concentrate'
             case 5:
-                self.image = pygame.image.load(os.path.join('models','player','player_summoning_1.png')).convert_alpha()
+                self.subcarpeta='cast'
             case 6:
-                self.image = pygame.image.load(os.path.join('models','player','player_proteccion.png')).convert_alpha()
+                self.subcarpeta='protection'
 
     def proteccion(self):
-        self.image = pygame.image.load(os.path.join('models','player','player_proteccion.png')).convert_alpha()
         self.guardia_activa = True
     
 
