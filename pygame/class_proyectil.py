@@ -46,11 +46,11 @@ class Proyectil(pygame.sprite.Sprite):
             self.rect.y -= self.speed
             if self.rect.y < 0:
                 self.vector = "caida"
-                print ("Condición 1")
+                
         if self.vector == "caida":
             self.rect.x = self.target
             self.rect.y += 10
-            print ("Condición 2")
+           
         
         elif self.vector== "horizontal":
             self.rect.y += self.speed_y

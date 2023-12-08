@@ -15,15 +15,14 @@ def obtener_ruta(carpeta_destino):
 #return nos indica lo que devuelve la función, para almacenarlo en una variable (por lo general tendrá el mismo nombre)
 
 
-
-
-
-
-def contador (n,m):
+#!El contador no puede funcionar, ya que los parámetros no salen fuera de la función. ¿Una clase de contador?
+def contador (n):
     n += 1
-    if n > m:
+    if n > 20:
         n = 0
-    return n
+        return True
+    print (n)
+    
 
 #Crea un contador universal. 
 #n debería ser self.n para que cada clase tenga su contador.

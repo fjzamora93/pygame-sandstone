@@ -92,6 +92,7 @@ class Player(pygame.sprite.Sprite):
             if self.n == 32:
                 self.n = 0
                 self.animacion = False
+            
              
                 
  
@@ -114,6 +115,8 @@ class Player(pygame.sprite.Sprite):
 
     def proteccion(self):
         self.guardia_activa = True
+        self.subcarpeta = 'protection'
+        
     
 
     def deteccion_colision(self,blocks_list,block_rect,block_y,block_top,block_left,block_rigth):

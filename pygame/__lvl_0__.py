@@ -21,7 +21,7 @@ numero_frames = 5
 
 
 #todo ANTES DE CLASS GAME, PODRÍAN IR TODAS LAS CLASES IMPORTADAS
-from class_mobs import Minion
+
 from class_mobs import Mob
 from class_proyectil import Proyectil
 from class_player import Player
