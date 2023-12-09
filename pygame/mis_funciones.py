@@ -62,11 +62,11 @@ class Detectar_Colision(pygame.sprite.Sprite):
         return score
     
     #Esta función debería tomar dos caminos dependiendo de si es una lista o no.
-    def recibir_impacto(self, unidad, grupo, booleano, mob_vivo):
+    def recibir_impacto(self, unidad, grupo, booleano, mob):
         self.unidad = unidad
         self.grupo = grupo
         self.booleano = booleano
-        self.mob = mob_vivo
+        self.mob = mob.vida
         
 
 
@@ -86,16 +86,3 @@ class Detectar_Colision(pygame.sprite.Sprite):
                     class_soundtrack.daño_recibido.play()
                 unidad.guardia_activa = False
     
-
-        """
-        if self.mob.vida > 0:
-            self.hit_list = pygame.sprite.spritecollide(self.unidad, self.grupo, self.booleano)
-            for _ in self.hit_list:
-                if self.booleano and not unidad.guardia_activa:
-                    self.unidad.vidas -=1
-                if not unidad.guardia_activa and self.temporizador.temporizar(20):    
-                    self.unidad.vidas -=1
-                if not unidad.guardia_activa:
-                    class_soundtrack.daño_recibido.play()
-                unidad.guardia_activa = False
-"""

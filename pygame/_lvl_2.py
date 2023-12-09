@@ -132,9 +132,10 @@ class Game_2(object):
             
 
             #TODO COLISIONES PLAYER
-            self.player.colision.recibir_impacto(self.player, self.minion_list, True, self.mob.aparicion) #Ten cuidadito con esto.. porque a poco que creas otro mob, estás jodido
-            self.player.colision.recibir_impacto(self.player, self.mob_list, False, self.boss.aparicion)
-            self.player.colision.recibir_impacto(self.proyectil_list, self.minion_list, self.player.destruccion_proyectil, None)
+            #!PRUEBA CORREGIR ESTO ITERANDO EN UN FOR LOS DISTINTAS UNIDADES DE LA LISTA, EN VEZ DE LA LISTA EN SÍ MISMA (usa colliderect, detecciones individuales)
+            self.player.colision.recibir_impacto(self.player, self.minion_list, True, self.mob) #Ten cuidadito con esto.. porque a poco que creas otro mob, estás jodido
+            self.player.colision.recibir_impacto(self.player, self.mob_list, False, self.boss)
+            self.player.colision.recibir_impacto(self.proyectil_list, self.minion_list, self.player.destruccion_proyectil, self.minion)
             
           
 
