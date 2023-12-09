@@ -57,25 +57,45 @@ class Detectar_Colision(pygame.sprite.Sprite):
             if unidad.vida > 0:
                 self.unidad.vida -= 1
                 score += 1
+            if unidad.vida <= 0:
+                self.unidad.aparicion = False
         return score
     
     #Esta función debería tomar dos caminos dependiendo de si es una lista o no.
-    def recibir_impacto(self, unidad, grupo, booleano):
+    def recibir_impacto(self, unidad, grupo, booleano, mob_vivo):
         self.unidad = unidad
         self.grupo = grupo
         self.booleano = booleano
+        self.mob = mob_vivo
+        
+
 
         #LA PRIMERA CONDICIÓN ES PARA CUANDO COLISIONA CON GRUPOS
         if isinstance(unidad, pygame.sprite.Group):
             self.hit_list = pygame.sprite.groupcollide(self.unidad, self.grupo, self.booleano, True)
-           
+        
+        #!EN EL MOMENTO EN EL QUE UN MOB MUERE, EL OTRO DEJA DE HACER DAÑO... NECESITAN LISTAS INDEPENDIENTES
         else:
             self.hit_list = pygame.sprite.spritecollide(self.unidad, self.grupo, self.booleano)
             for _ in self.hit_list:
-                if not unidad.guardia_activa and self.temporizador.temporizar(20):    
+                if self.booleano and not unidad.guardia_activa:
                     self.unidad.vidas -=1
                     class_soundtrack.daño_recibido.play()
-
-        unidad.guardia_activa = False
+                if not unidad.guardia_activa and self.temporizador.temporizar(20) and self.mob:    
+                    self.unidad.vidas -=1
+                    class_soundtrack.daño_recibido.play()
+                unidad.guardia_activa = False
     
 
+        """
+        if self.mob.vida > 0:
+            self.hit_list = pygame.sprite.spritecollide(self.unidad, self.grupo, self.booleano)
+            for _ in self.hit_list:
+                if self.booleano and not unidad.guardia_activa:
+                    self.unidad.vidas -=1
+                if not unidad.guardia_activa and self.temporizador.temporizar(20):    
+                    self.unidad.vidas -=1
+                if not unidad.guardia_activa:
+                    class_soundtrack.daño_recibido.play()
+                unidad.guardia_activa = False
+"""

@@ -127,19 +127,14 @@ class Game_2(object):
                     self.minion.generar_minion(self.sprites, self.minion_list)
 
             #TODO COLISIONES CON LOS MOBS
-            for mob in self.minion_list:
-                if pygame.Rect.colliderect(self.player.rect, mob.rect) and self.mob.vida > 0:
-                    self.player.guardia_activa == False
-                    self.player.vidas -=1
-
             self.mob.colision.detect(self.mob, self.proyectil_list, True, self.score)
             self.boss.colision.detect(self.boss, self.proyectil_list, True, self.score)
             
 
-            #!Daño y pérdida de vida
-            self.player.colision.recibir_impacto(self.player, self.minion_list, True)
-            self.player.colision.recibir_impacto(self.player, self.mob_list, False)
-            self.player.colision.recibir_impacto(self.proyectil_list, self.minion_list, self.player.destruccion_proyectil)
+            #TODO COLISIONES PLAYER
+            self.player.colision.recibir_impacto(self.player, self.minion_list, True, self.mob.aparicion) #Ten cuidadito con esto.. porque a poco que creas otro mob, estás jodido
+            self.player.colision.recibir_impacto(self.player, self.mob_list, False, self.boss.aparicion)
+            self.player.colision.recibir_impacto(self.proyectil_list, self.minion_list, self.player.destruccion_proyectil, None)
             
           
 
@@ -169,20 +164,9 @@ class Game_2(object):
 
             
     def display_frame(self,screen):
-        #TODO Este es el contador que ralentizará las animaciones
-        self.contador_1 += 1
-        if self.contador_1 == 9:
-            self.contador_1 = 0
-        if self.contador_1 == 0:
-            if self.n<5:
-                self.n += 1
-            else:
-                self.n = 0
-        background= mis_sprites.cargar_sprite(self.sprites_nivel, 0)
        
+        background= mis_sprites.cargar_sprite(self.sprites_nivel, 0)
         suelo = pygame.image.load(os.path.join('background','mountain','suelo_2.png')).convert_alpha()
-
-
         
         #En la siguiente linea: la posición del jugador se le resta la cámara (0) y el ancho (si dividimos ancho//2 me quedo sin pantalla!!!)
         self.camera += (self.player.rect.x/2 - self.camera - ancho)
