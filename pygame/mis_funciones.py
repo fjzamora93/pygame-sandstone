@@ -1,7 +1,7 @@
 #Archivo con varias funciones útiles en cualquier caso:
 import os,glob,pygame
-
-
+import class_soundtrack
+from temporizador import Temporizador
 
 def obtener_ruta(carpeta_destino):
     patron_png = os.path.join(carpeta_destino,"*.png")
@@ -29,8 +29,6 @@ def contador (n):
 #Los n deberían inialiarse en 0.
 #m es el máximo de iteraciones posibles antes de volver a 0
 
-
-
 def generador_bloques(sprites, group_list, clase, x, y):
     ruta_imagen = 'models/blocks'
     clase.carpeta = ruta_imagen
@@ -38,3 +36,46 @@ def generador_bloques(sprites, group_list, clase, x, y):
     clase.rect.y = y
     sprites.add(clase)
     group_list.add(clase)
+
+
+
+class Detectar_Colision(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.temporizador = Temporizador(20)
+     
+    def update(self):
+        ...
+        
+    def detect(self, unidad, grupo, booleano, score): #solo para mobs
+        
+        self.unidad = unidad
+        self.grupo = grupo
+        self.booleano = booleano
+        self.hit_list = pygame.sprite.spritecollide(self.unidad, self.grupo, self.booleano)
+        for _ in self.hit_list:
+            if unidad.vida > 0:
+                self.unidad.vida -= 1
+                score += 1
+        return score
+    
+    #Esta función debería tomar dos caminos dependiendo de si es una lista o no.
+    def recibir_impacto(self, unidad, grupo, booleano):
+        self.unidad = unidad
+        self.grupo = grupo
+        self.booleano = booleano
+
+        #LA PRIMERA CONDICIÓN ES PARA CUANDO COLISIONA CON GRUPOS
+        if isinstance(unidad, pygame.sprite.Group):
+            self.hit_list = pygame.sprite.groupcollide(self.unidad, self.grupo, self.booleano, True)
+           
+        else:
+            self.hit_list = pygame.sprite.spritecollide(self.unidad, self.grupo, self.booleano)
+            for _ in self.hit_list:
+                if not unidad.guardia_activa and self.temporizador.temporizar(20):    
+                    self.unidad.vidas -=1
+                    class_soundtrack.daño_recibido.play()
+
+        unidad.guardia_activa = False
+    
+

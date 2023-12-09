@@ -37,7 +37,7 @@ class Game_2(object):
         pygame.display.set_caption("Tales of Sandstone") 
         self.nivel = 2
         self.game_over = False
-        self.score = 0
+        self.score = 3
         self.n = 0
         self.contador_1 = 0
         self.sprites_nivel = f'background/{self.nivel}'
@@ -52,26 +52,28 @@ class Game_2(object):
         self.sprites = pygame.sprite.Group()
         self.mob_list =pygame.sprite.Group()
        
-        self.mob_atack_list = pygame.sprite.Group()
+        self.minion_list = pygame.sprite.Group()
         self.fuegos_cruzados = pygame.sprite.Group()
         self.blocks_list =pygame.sprite.Group()
         self.items_list = pygame.sprite.Group()
         self.platform_list = pygame.sprite.Group()
         
         #TODOS LOS ENTIDADES QUE VAMOS A INICIALIZAR
-        for i in range(10):
-            self.minion = Mob('minion', str(self.nivel))
-            self.minion.generar_minion(self.sprites, self.minion_list)
+       
             
         
         self.menu = Menu(self.nivel)
         self.item = Items()
-        self.boss = Mob('boss', str(self.nivel))
-        self.mob = Mob('mob', str(self.nivel))
+        self.player = Player()
+        self.boss = Mob('boss', self.nivel, self.player.rect.x)
+        self.mob = Mob('mob', self.nivel, self.player.rect.x)
+        for i in range(10):
+            self.minion = Mob('minion', self.nivel, self.player.rect.x)
+            self.minion.generar_minion(self.sprites, self.minion_list)
         self.button = Button(ancho//2,50, "Menu", 'models/menu', 0)
         self.inventario = Button (800, 50, "", 'models/menu', 2)
         self.mouse = Mouse()
-        self.player = Player()
+        
         self.x = self.player.rect.x
         self.proyectil = Proyectil(self.player.rect.x, self.player.rect.y, self.player.direction, self.player.proyectil_case+1)
 
@@ -87,7 +89,7 @@ class Game_2(object):
         #Ocultamos cursor
         pygame.mouse.set_visible(False)
  
-    def process_events(self,screen):
+    def process_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return True
@@ -98,12 +100,9 @@ class Game_2(object):
                 if self.button.checkForInput(MOUSE_POSITION):
                     self.menu.open_menu= True
  
-            #soundtrack.control_audio(event,screen,soundtrack)
             self.player.controles_1(event,self.sprites,self.proyectil_list)
-            
-            if self.menu.open_menu == True:
-                self.soundtrack.control_audio(event,screen)
- 
+    
+          
             #CREAMOS UNA NUEVA LÓGICA PARA REINICIAR EL JUEGO
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.game_over:
@@ -112,86 +111,44 @@ class Game_2(object):
         # Esto retornará false y está almacenado en la variable "done"
         return False
 
-
-
     def run_logic(self):
         if not self.game_over:
             self.sprites.update()
 
-            #!BOSS 
-            if self.boss.vida <= 0:
-                self.boss.aparicion = False      
-            if self.score > 10 and self.boss.vida > 0:
-                self.boss.spawn(self.player.rect.x, self.player.rect.y)
-                self.boss.accion_aleatoria(self.sprites, self.mob_atack_list,self.player.rect.x)
-                self.mob_list.add(self.boss)
-
-            if pygame.Rect.colliderect(self.player.rect, self.boss.rect) and self.boss.vida > 0:
-                if self.boss.count.temporizar(): #ralentiza ticks para que el mob haga menos daño por colision
-                    self.player.vidas -=1
-
-            #!REFACTORIZAR EL DAÑO AL MOB  Y BOSS     
-           
-            boss_hit_list = pygame.sprite.spritecollide(self.boss, self.proyectil_list, True)
-            for _ in boss_hit_list:
-                self.boss.vida -= 1
-                self.score += 1 
-            
-            fuegos_cruzados = pygame.sprite.groupcollide(self.proyectil_list,self.mob_atack_list, False, True)
-
-            #! MOB 
-            if self.mob.vida <= 0:
-                pass
-                #self.mob.kill()
-                self.mob.aparicion = False     
+            #TODOS SPAWN DE MOBS
             if self.score > 1 and self.mob.vida >= 1:
-                self.mob.spawn(self.player.rect.x, self.player.rect.y)
-                self.mob.movimiento_bucle()
-                self.mob_list.add(self.mob)
-                self.sprites.add(self.mob)
-            if pygame.Rect.colliderect(self.player.rect, self.mob.rect) and self.mob.vida > 0:
-                if self.mob.count.temporizar(): #ralentiza ticks para que el mob haga menos daño por colision
-                    self.player.vidas -=1
-            mob_hit_list = pygame.sprite.spritecollide(self.mob, self.proyectil_list, self.player.destruccion_proyectil)
-            for _ in mob_hit_list:
-                self.mob.vida -= 1
-                print (self.mob.vida)
-                self.score += 1 
-
-
-            #!MINIONS             
+                self.mob.spawn(self.player.rect.x, self.sprites, self.mob_list)    
+            if self.score > 2 and self.boss.vida > 0:
+                self.boss.spawn(self.player.rect.x, self.sprites, self.mob_list)
+                self.boss.accion_aleatoria(self.sprites, self.minion_list, self.player.rect.x)
             if len(self.minion_list) == 0:
                 for i in range(self.nivel*5):
-                    self.minion = Mob('minion', str(self.nivel))
+                    self.minion = Mob('minion', self.nivel, self.player.rect.x)
                     self.minion.generar_minion(self.sprites, self.minion_list)
 
-            #Daño y pérdida de vida
+            #TODO COLISIONES CON LOS MOBS
+            for mob in self.minion_list:
+                if pygame.Rect.colliderect(self.player.rect, mob.rect) and self.mob.vida > 0:
+                    self.player.guardia_activa == False
+                    self.player.vidas -=1
+
+            self.mob.colision.detect(self.mob, self.proyectil_list, True, self.score)
+            self.boss.colision.detect(self.boss, self.proyectil_list, True, self.score)
             
-            player_hit_list = pygame.sprite.spritecollide(self.player, self.minion_list, True)
-            player_hit_list += pygame.sprite.spritecollide(self.player, self.mob_atack_list, True)
+
+            #!Daño y pérdida de vida
+            self.player.colision.recibir_impacto(self.player, self.minion_list, True)
+            self.player.colision.recibir_impacto(self.player, self.mob_list, False)
+            self.player.colision.recibir_impacto(self.proyectil_list, self.minion_list, self.player.destruccion_proyectil)
             
-            if not self.player.guardia_activa:
-                for _ in player_hit_list:
-                    self.player.vidas -= 1
-                    class_soundtrack.daño_recibido.play()
-            if player_hit_list:
-                self.player.guardia_activa = False
-                
-            
-            #Puntuación y score    
-            success_shot_list = pygame.sprite.groupcollide(self.proyectil_list, self.minion_list, self.player.destruccion_proyectil, True)    
-            for shot in success_shot_list:  
-                self.score += 1
-                self.player.amount_charge += 1
-                class_soundtrack.coins.play()
-            
-            
+          
+
             #! BONIFICACIONES Y CONTROL DE ATAQUE
             if len(self.proyectil_list) > self.player.limite_proyectil:
                 sprite_a_eliminar = self.proyectil_list.sprites()[self.player.limite_proyectil]
                 sprite_a_eliminar.kill()
 
-            if pygame.sprite.spritecollide(self.player,self.items_list, True):
+            if pygame.sprite.spritecollide(self.player, self.items_list, True):
                 if self.item.autodestruccion == False:
                     self.player.clasificar_proyectil(self.sprites, self.item)
                     self.item.autodestruccion = True
@@ -208,7 +165,7 @@ class Game_2(object):
                 self.game_over = True
             if self.menu.nivel == 1:
                 self.nivel = 1
-                print ("control 2")
+          
 
             
     def display_frame(self,screen):
@@ -283,7 +240,7 @@ def main():
     
     while not done:
         if game_2.nivel == 2:
-            done = game_2.process_events(screen)
+            done = game_2.process_events()
             game_2.run_logic()
             game_2.display_frame(screen)
             clock.tick(60)

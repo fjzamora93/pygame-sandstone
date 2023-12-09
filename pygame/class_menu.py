@@ -2,6 +2,7 @@ import pygame, sys, os
 from tkinter import *
 from pygame import *
 from class_button import Button
+from class_soundtrack import Soundtrack
 
 
 font= pygame.font.SysFont("arial",40)
@@ -20,12 +21,13 @@ class Menu(pygame.sprite.Sprite):
         self.nivel = nivel
         self.open_menu= False
         self.game_over = False
+        self.soundtrack = Soundtrack()
 
     def update (self):
         if self.open_menu:
             self.main_menu()
-
-
+            
+            
     def main_menu(self):
         if not self.game_over:
             MOUSE_POSITION = pygame.mouse.get_pos()
@@ -61,4 +63,7 @@ class Menu(pygame.sprite.Sprite):
             for button in [self.play_button, self.restart_button, self.save_button, self.load_button, self.level_button]:
                 button.changeColor(MOUSE_POSITION)
                 button.update()
+
+            #AUDIO DEL MENÚ    
+            self.soundtrack.control_audio()
 

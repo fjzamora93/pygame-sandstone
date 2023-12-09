@@ -1,4 +1,5 @@
 import pygame,glob,random, mis_funciones
+from mis_funciones import Detectar_Colision
 import os, mis_sprites
 from class_proyectil import Proyectil
 from class_items import Items
@@ -33,14 +34,12 @@ class Player(pygame.sprite.Sprite):
         self.animacion = False
         self.subcarpeta = None
         
-        
-
-
         self.amount_charge = 0
         self.proyectil_case=0
         self.guardia_activa = True
         self.limite_proyectil = 1
         self.destruccion_proyectil = False
+        self.colision = Detectar_Colision()
         
 
        

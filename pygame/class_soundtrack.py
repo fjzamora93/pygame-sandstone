@@ -41,6 +41,7 @@ audio_on = pygame.image.load(os.path.join('models','menu','audio_on.png'))
 audio_off = pygame.image.load(os.path.join('models','menu','audio_off.png'))
 
 
+#Intenta meter el control de audio dentro del menú, no lo dejes por ahí suelto
 class Soundtrack(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -62,14 +63,16 @@ class Soundtrack(pygame.sprite.Sprite):
         pygame.mixer.music.set_volume(1.0)
 
     #CONTROL DE AUDIO DESDE EL TECLADO
-    def control_audio(self,event,screen):
+    def control_audio(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_9]and pygame.mixer.music.get_volume() <= 0.0:
             pygame.mixer.music.set_volume(pygame.mixer.music.get_volume() + 1.0)
             self.volume = "on"
+            print ("sonido activado o desactivado")
 
         if keys[pygame.K_8] and pygame.mixer.music.get_volume() >= 1.0:
             pygame.mixer.music.set_volume(pygame.mixer.music.get_volume() - 1.0)
             self.volume = "off"
+            print ("sonido activado o desactivado")
 
 

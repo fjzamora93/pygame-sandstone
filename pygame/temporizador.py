@@ -6,9 +6,9 @@ class Temporizador(pygame.sprite.Sprite):
         self.contador = 0
         self.limite = limite
 
-    def temporizar(self):
+    def temporizar(self, limite):
         self.contador += 1
-        if self.contador > self.limite:
+        if self.contador > limite:
             self.contador = 0
             return True
 

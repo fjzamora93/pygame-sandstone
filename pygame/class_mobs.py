@@ -1,18 +1,19 @@
 import pygame, random, sys, os, class_soundtrack, mis_sprites, temporizador
 from class_proyectil import Proyectil
+from mis_funciones import Detectar_Colision
 ancho=900
 alto=554
 
 
 
 class Mob(pygame.sprite.Sprite):
-    def __init__(self, subcarpeta, nivel):
+    def __init__(self, subcarpeta, nivel, player_x):
         super().__init__()
         self.n = 0
-        self.nivel = int(nivel)
+        self.nivel = nivel
         self.image = mis_sprites.cargar_sprite(f'models/entity/{subcarpeta}/{nivel}', self.n)
         self.rect = self.image.get_rect()
-        self.rect.x = 0
+        self.rect.x = 400 #EN ALGÚN MOMENTO LO TENDRÁS QUE METER ESTO COMO PARÁMETRO
         self.rect.y = 0
         self.speed = 1
         self.speed_y = 1
@@ -21,6 +22,7 @@ class Mob(pygame.sprite.Sprite):
        
         #Gestión de acciones
         self.posicion_origen = self.rect.x, self.rect.y
+        self.posicion_jugador = player_x
         self.aparicion= False
         self.count = temporizador.Temporizador(20 - self.nivel) #creamos una clase de temporizador
         self.jumping = False
@@ -28,17 +30,41 @@ class Mob(pygame.sprite.Sprite):
         self.listado_acciones= ["atacar","desplazarse", "misil", "pausa", "salto"]
         self.eleccion = None
 
-        #Gestión de frames
+
+        #Gestión de frames y colisiones
+        self.colision = Detectar_Colision()
         self.subtipo = subcarpeta
         
         
+    def update(self):
+        if self.subtipo == "minion":
+            self.movimiento_minion()
+        if self.subtipo == "mob":
+            self.movimiento_bucle()
+           
+
+        if self.subtipo != "minion":
+            if self.count.temporizar(20):
+                self.image_update()
+            self.rect.x += self.speed
+            if self.rect.x < 0: 
+                self.rect.x = 0
+            if self.rect.x > 700:
+                self.rect.x = 700
+            if self.jumping:
+                if self.jump_count >= -10:
+                    self.rect.y -= int((self.jump_count * abs(self.jump_count)) * 0.4)
+                    self.jump_count -= 1
+                else:
+                    self.jump_count = 10
+                    self.jumping = False
+            if self.vida <= 0:
+                self.speed = 0
 
     def accion_aleatoria(self, sprites_list, mob_atack_list,player_position):
         if self.vida > 0:
-            sprites_list.add(self)
             self.eleccion= random.choice(self.listado_acciones)
             if self.count.contador == 0:
-                
                 match self.eleccion:
                     case "atacar":
                         self.atacar(sprites_list, mob_atack_list,player_position)
@@ -77,12 +103,11 @@ class Mob(pygame.sprite.Sprite):
             self.speed += random.randint(-5,5)
     
     def movimiento_bucle(self):
-        if self.rect.x < 400:
-            self.speed = 1
-        if self.rect.x > 600:
-            self.speed = -1
+        if self.rect.x < self.posicion_origen[0] - 100:
+            self.speed = 3
+        if self.rect.x > self.posicion_origen[0] + 100:
+            self.speed = -3
        
-
 
     def misil(self,all_sprites_list, mob_atack_list, player_position):
         self.mob_atack = Proyectil(self.rect.x,self.rect.y,self.direction,3)
@@ -90,35 +115,10 @@ class Mob(pygame.sprite.Sprite):
         self.mob_atack.vector = "vertical"
         self.mob_atack.target = player_position
         self.mob_atack.image = pygame.image.load(os.path.join('models','skill','conduit.png')).convert_alpha()
-        
         all_sprites_list.add(self.mob_atack)
         mob_atack_list.add(self.mob_atack)
+
     
-
-    def update(self):
-        if self.subtipo == "minion":
-            
-            self.movimiento_minion()
-
-        else:
-            if self.count.temporizar():
-                self.image_update()
-            self.rect.x += self.speed
-            if self.rect.x < 0: 
-                self.rect.x = 0
-            if self.rect.x > 700:
-                self.rect.x = 700
-            if self.jumping:
-                if self.jump_count >= -10:
-                    self.rect.y -= int((self.jump_count * abs(self.jump_count)) * 0.4)
-                    self.jump_count -= 1
-                else:
-                    self.jump_count = 10
-                    self.jumping = False
-            if self.vida <= 0:
-                self.speed = 0
-           
-
     def image_update(self):
         if self.speed == 0:
             self.n = 0
@@ -141,7 +141,9 @@ class Mob(pygame.sprite.Sprite):
             self.image = pygame.transform.flip(mis_sprites.cargar_sprite(f'models/entity/{self.subtipo}/{self.nivel}', self.n), True, False)
         
  
-    def spawn(self,player_x,player_y):
+    def spawn(self, player_x, sprites_list, mob_list):
+        sprites_list.add(self)
+        mob_list.add (self)
         if self.aparicion == False:
             self.rect.y = 480
             self.aparicion=True
@@ -162,5 +164,6 @@ class Mob(pygame.sprite.Sprite):
         if self.rect.y > alto:
             self.rect.y = -10
             self.rect.x = random.randrange(ancho)
-        
+    
+
  
