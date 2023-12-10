@@ -20,6 +20,7 @@ class Player(pygame.sprite.Sprite):
         self.speed_y = 0
         self.vidas = 10
         self.direction = "right"
+        self.score = 0
 
      
         # variables del salto,caida y gravedad
@@ -184,6 +185,7 @@ class Player(pygame.sprite.Sprite):
 
     def clasificar_proyectil(self,all_sprites_list,item):      
         self.amount_charge += 5
+        self.score += 10
         self.destruccion_proyectil = True
         if item.list_path_random == "models/items\manzana.png":
             self.vidas += 1

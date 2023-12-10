@@ -143,8 +143,9 @@ class Mob(pygame.sprite.Sprite):
  
     def spawn(self, player_x, sprites_list, mob_list):
         sprites_list.add(self)
-        mob_list.add (self)
+       
         if self.aparicion == False:
+            mob_list.append (self)
             self.rect.y = 480
             self.aparicion=True
             if player_x < ancho // 2:

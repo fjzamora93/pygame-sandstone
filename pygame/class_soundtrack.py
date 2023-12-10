@@ -50,6 +50,7 @@ class Soundtrack(pygame.sprite.Sprite):
         self.rect.x = 860
         self.rect.y = 20
         self.volume= "on"
+        self.play_music(fondo)
         
     def update(self):
         if self.volume == "on":

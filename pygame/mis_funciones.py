@@ -47,7 +47,7 @@ class Detectar_Colision(pygame.sprite.Sprite):
     def update(self):
         ...
         
-    def detect(self, unidad, grupo, booleano, score): #solo para mobs
+    def detect(self, unidad, grupo, booleano, player): #solo para mobs
         
         self.unidad = unidad
         self.grupo = grupo
@@ -56,24 +56,34 @@ class Detectar_Colision(pygame.sprite.Sprite):
         for _ in self.hit_list:
             if unidad.vida > 0:
                 self.unidad.vida -= 1
-                score += 1
+                player.score += 1
+                print (player.score)
             if unidad.vida <= 0:
                 self.unidad.aparicion = False
-        return score
+   
     
     #Esta función debería tomar dos caminos dependiendo de si es una lista o no.
-    def recibir_impacto(self, unidad, grupo, booleano, mob):
+    def recibir_impacto(self, unidad, grupo, booleano):
         self.unidad = unidad
         self.grupo = grupo
         self.booleano = booleano
-        self.mob = mob.vida
-        
-
+       
+        #print(type(unidad)) #conocer de qué tipo es una instancia
 
         #LA PRIMERA CONDICIÓN ES PARA CUANDO COLISIONA CON GRUPOS
         if isinstance(unidad, pygame.sprite.Group):
             self.hit_list = pygame.sprite.groupcollide(self.unidad, self.grupo, self.booleano, True)
-        
+            
+       
+        elif isinstance (grupo, list):
+            for mob in grupo:
+                if self.unidad.rect.colliderect(mob.rect):
+                    if not unidad.guardia_activa and self.temporizador.temporizar(20) and mob.vida:
+                        self.unidad.vidas -= 1
+                        print("¡Colisión detectada!")
+                        class_soundtrack.daño_recibido.play()
+                    unidad.guardia_activa = False
+
         #!EN EL MOMENTO EN EL QUE UN MOB MUERE, EL OTRO DEJA DE HACER DAÑO... NECESITAN LISTAS INDEPENDIENTES
         else:
             self.hit_list = pygame.sprite.spritecollide(self.unidad, self.grupo, self.booleano)
@@ -81,7 +91,7 @@ class Detectar_Colision(pygame.sprite.Sprite):
                 if self.booleano and not unidad.guardia_activa:
                     self.unidad.vidas -=1
                     class_soundtrack.daño_recibido.play()
-                if not unidad.guardia_activa and self.temporizador.temporizar(20) and self.mob:    
+                if not unidad.guardia_activa and self.temporizador.temporizar(20):    
                     self.unidad.vidas -=1
                     class_soundtrack.daño_recibido.play()
                 unidad.guardia_activa = False

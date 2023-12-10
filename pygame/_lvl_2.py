@@ -1,7 +1,7 @@
 
 
 import pygame, random, os
-import class_soundtrack,textos_pantalla,stats, mis_funciones, mis_sprites
+import textos_pantalla,stats, mis_funciones, mis_sprites
 from tkinter import *
 pygame.mixer.init() #Para reproducir sonidos, guapi
 
@@ -20,6 +20,7 @@ numero_frames = 5
 #todo ANTES DE CLASS GAME, PODRÍAN IR TODAS LAS CLASES IMPORTADAS
 import __lvl_0__
 
+
 from class_mobs import Mob
 from class_proyectil import Proyectil
 from class_player import Player
@@ -27,7 +28,6 @@ from class_blocks import Block
 from class_blocks import obtener_ruta
 from background import obtener_background_path
 from class_items import Items
-from class_soundtrack import Soundtrack
 from class_button import Button
 from class_mouse import Mouse
 from class_menu import Menu
@@ -37,21 +37,17 @@ class Game_2(object):
         pygame.display.set_caption("Tales of Sandstone") 
         self.nivel = 2
         self.game_over = False
-        self.score = 3
         self.n = 0
         self.contador_1 = 0
         self.sprites_nivel = f'background/{self.nivel}'
-    
         self.camera = 0
       
-    
-
         # TODOS LAS LISTAS QUE VAMOS A UTILIZAR
+        self.mob_list = [] # En esta lista estarán todas los mobs que no mueren por colision
+
         self.proyectil_list = pygame.sprite.Group()
         self.minion_list = pygame.sprite.Group()
         self.sprites = pygame.sprite.Group()
-        self.mob_list =pygame.sprite.Group()
-       
         self.minion_list = pygame.sprite.Group()
         self.fuegos_cruzados = pygame.sprite.Group()
         self.blocks_list =pygame.sprite.Group()
@@ -59,33 +55,21 @@ class Game_2(object):
         self.platform_list = pygame.sprite.Group()
         
         #TODOS LOS ENTIDADES QUE VAMOS A INICIALIZAR
-       
-            
-        
         self.menu = Menu(self.nivel)
         self.item = Items()
         self.player = Player()
         self.boss = Mob('boss', self.nivel, self.player.rect.x)
         self.mob = Mob('mob', self.nivel, self.player.rect.x)
-        for i in range(10):
-            self.minion = Mob('minion', self.nivel, self.player.rect.x)
-            self.minion.generar_minion(self.sprites, self.minion_list)
+        
         self.button = Button(ancho//2,50, "Menu", 'models/menu', 0)
         self.inventario = Button (800, 50, "", 'models/menu', 2)
         self.mouse = Mouse()
         
-        self.x = self.player.rect.x
-        self.proyectil = Proyectil(self.player.rect.x, self.player.rect.y, self.player.direction, self.player.proyectil_case+1)
-
-        #Inicializamos la música
-        self.soundtrack = Soundtrack()
-        self.soundtrack.play_music(class_soundtrack.fondo)
-
+        #TODO LISTA DE SPRITES
         self.sprites.add(self.mouse)
         self.sprites.add(self.player)
         self.sprites.add(self.item)
-        
-       
+
         #Ocultamos cursor
         pygame.mouse.set_visible(False)
  
@@ -116,9 +100,9 @@ class Game_2(object):
             self.sprites.update()
 
             #TODOS SPAWN DE MOBS
-            if self.score > 1 and self.mob.vida >= 1:
+            if self.player.score >= 0 and self.mob.vida >= 1:
                 self.mob.spawn(self.player.rect.x, self.sprites, self.mob_list)    
-            if self.score > 2 and self.boss.vida > 0:
+            if self.player.score >= 2 and self.boss.vida > 0:
                 self.boss.spawn(self.player.rect.x, self.sprites, self.mob_list)
                 self.boss.accion_aleatoria(self.sprites, self.minion_list, self.player.rect.x)
             if len(self.minion_list) == 0:
@@ -127,17 +111,14 @@ class Game_2(object):
                     self.minion.generar_minion(self.sprites, self.minion_list)
 
             #TODO COLISIONES CON LOS MOBS
-            self.mob.colision.detect(self.mob, self.proyectil_list, True, self.score)
-            self.boss.colision.detect(self.boss, self.proyectil_list, True, self.score)
-            
+            self.mob.colision.detect(self.mob, self.proyectil_list, True, self.player)
+            self.boss.colision.detect(self.boss, self.proyectil_list, True, self.player)
 
             #TODO COLISIONES PLAYER
-            #!PRUEBA CORREGIR ESTO ITERANDO EN UN FOR LOS DISTINTAS UNIDADES DE LA LISTA, EN VEZ DE LA LISTA EN SÍ MISMA (usa colliderect, detecciones individuales)
-            self.player.colision.recibir_impacto(self.player, self.minion_list, True, self.mob) #Ten cuidadito con esto.. porque a poco que creas otro mob, estás jodido
-            self.player.colision.recibir_impacto(self.player, self.mob_list, False, self.boss)
-            self.player.colision.recibir_impacto(self.proyectil_list, self.minion_list, self.player.destruccion_proyectil, self.minion)
+            self.player.colision.recibir_impacto(self.player, self.minion_list, True) 
+            self.player.colision.recibir_impacto(self.proyectil_list, self.minion_list, self.player.destruccion_proyectil)
+            self.player.colision.recibir_impacto(self.player, self.mob_list, False)
             
-          
 
             #! BONIFICACIONES Y CONTROL DE ATAQUE
             if len(self.proyectil_list) > self.player.limite_proyectil:
@@ -150,8 +131,8 @@ class Game_2(object):
                     self.item.autodestruccion = True
                     self.item.kill()
 
-            if random.randint(0,1) == 1 and self.score%5 == 0 and self.score != 0:
-                self.score +=1 
+            if random.randint(0,1) == 1 and self.player.score%5 == 0 and self.player.score != 0:
+                self.player.score +=1 
                 self.item = Items()
                 self.sprites.add(self.item)
             self.items_list.add(self.item)
@@ -192,16 +173,12 @@ class Game_2(object):
         if self.menu.open_menu:
             pygame.mouse.set_visible(True)
             self.menu.main_menu()
-            self.sprites.add(self.soundtrack)
-            
-        if not self.menu.open_menu:
-            self.soundtrack.kill()
 
 
         #! STATS Y PUNTUACIONES
         if not self.game_over and not self.menu.open_menu:
             pygame.mouse.set_visible(False)
-            textos_pantalla.texto_variable(screen, self.score, 710,10)
+            textos_pantalla.texto_variable(screen, self.player.score, 710,10)
             stats.hearts(screen, self.player.vidas)
             ruta = os.path.join('models', 'particle', 'mana.png')
             stats.generar_stat(screen, self.player.limite_proyectil, ruta, 10, 50, 10, len(self.proyectil_list))
