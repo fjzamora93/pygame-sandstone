@@ -39,7 +39,7 @@ class Detectar_Colision(pygame.sprite.Sprite):
         #LA PRIMERA CONDICIÓN ES PARA CUANDO COLISIONA CON GRUPOS
         if isinstance(unidad, pygame.sprite.Group):
             self.hit_list = pygame.sprite.groupcollide(self.unidad, self.grupo, self.booleano, True)
-            
+        
        
         elif isinstance (grupo, list):
             for mob in grupo:

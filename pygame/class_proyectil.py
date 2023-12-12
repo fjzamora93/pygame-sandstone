@@ -31,7 +31,7 @@ class Proyectil(pygame.sprite.Sprite):
         self.limite = n
         self.cargas_acumuladas = 0
         self.autodestruccion = True
-
+       
         #Solo para el mob (de ahí que esté en negativo)
         self.target = -10
     

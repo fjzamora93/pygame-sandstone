@@ -26,6 +26,8 @@ class Player(pygame.sprite.Sprite):
         self.is_falling = False
         self.colision_block = False
         self.pisando = False
+        self.escudo = None #Esto será la instancia que después ocupará el escudo. 
+        self.daño_recibido = False
 
         #Variables habilidades
         self.n = 0 #mi contador de sprites
@@ -34,7 +36,7 @@ class Player(pygame.sprite.Sprite):
         
         self.amount_charge = 0
         self.proyectil_case=0
-        self.guardia_activa = True
+        self.guardia_activa = False
         self.limite_proyectil = 1
         self.destruccion_proyectil = False
         self.colision = Detectar_Colision()
@@ -77,10 +79,6 @@ class Player(pygame.sprite.Sprite):
                 self.jump_count = 10
                 self.jumping = False
 
-        #CONDICIONES ESPECIALES      
-        if self.speed_x != 0:
-            self.guardia_activa = False
-
         if self.animacion:
             self.n += 1
             if self.direction == "right":
@@ -90,9 +88,15 @@ class Player(pygame.sprite.Sprite):
             if self.n == 32:
                 self.n = 0
                 self.animacion = False
-            
-             
-                
+        
+        if self.guardia_activa:
+            self.escudo.rect.x = self.rect.x
+            self.escudo.rect.y = self.rect.y
+        if self.escudo is not None:
+            if not self.guardia_activa or self.escudo.rect.x != self.rect.x:
+                self.escudo.kill()
+        
+    
  
     def atack(self,skill):
         self.n = 0
@@ -109,16 +113,19 @@ class Player(pygame.sprite.Sprite):
             case 5:
                 self.subcarpeta='cast'
             case 6:
-                self.subcarpeta='protection'
+                self.subcarpeta='concentrate'
 
     def proteccion(self,all_sprites_list,proyectil_list):
-        self.escudo = Proyectil(self.rect.x, self.rect.y, self.direction, self.limite_proyectil)
-        self.escudo.subtipo = "shield"
-        self.escudo.skill=6
-        self.guardia_activa = True
-        self.subcarpeta = 'protection'
-        self.vector = 'static'
-        self.escudo.skill_set(all_sprites_list,proyectil_list)
+        if self.guardia_activa == False:
+            self.escudo = Proyectil(self.rect.x, self.rect.y, self.direction, self.limite_proyectil)
+            self.escudo.subtipo = "shield"
+            self.escudo.skill=6
+            self.guardia_activa = True
+            
+            self.subcarpeta = 'concentrate'
+            self.vector = 'static'
+            self.escudo.skill_set(all_sprites_list,proyectil_list)
+        
         
     
 
