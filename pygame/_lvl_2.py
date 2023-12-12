@@ -100,9 +100,9 @@ class Game_2(object):
             self.sprites.update()
 
             #TODOS SPAWN DE MOBS
-            if self.player.score >= 0 and self.mob.vida >= 1:
+            if self.player.score >= 0:
                 self.mob.spawn(self.player.rect.x, self.sprites, self.mob_list)    
-            if self.player.score >= 2 and self.boss.vida > 0:
+            if self.player.score >= 2:
                 self.boss.spawn(self.player.rect.x, self.sprites, self.mob_list)
                 self.boss.accion_aleatoria(self.sprites, self.minion_list, self.player.rect.x)
             if len(self.minion_list) == 0:
@@ -182,8 +182,7 @@ class Game_2(object):
             stats.hearts(screen, self.player.vidas)
             ruta = os.path.join('models', 'particle', 'mana.png')
             stats.generar_stat(screen, self.player.limite_proyectil, ruta, 10, 50, 10, len(self.proyectil_list))
-            if self.boss.aparicion == True:
-                stats.hearts_mob(screen,self.boss.vida)
+            
             textos_pantalla.texto_cargas(screen, self.player.amount_charge)
             
             #!Este de aquí es obligatorio para actualizar lo que se ve en pantalla
