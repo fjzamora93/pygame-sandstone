@@ -48,18 +48,18 @@ class Detectar_Colision(pygame.sprite.Sprite):
         ...
         
     def detect(self, unidad, grupo, booleano, player): #solo para mobs
-        
-        self.unidad = unidad
-        self.grupo = grupo
-        self.booleano = booleano
-        self.hit_list = pygame.sprite.spritecollide(self.unidad, self.grupo, self.booleano)
-        for _ in self.hit_list:
-            if unidad.vida > 0:
-                self.unidad.vida -= 1
-                player.score += 1
-                print (player.score)
-            if unidad.vida <= 0:
-                self.unidad.aparicion = False
+        if unidad.vida > 0:
+            self.unidad = unidad
+            self.grupo = grupo
+            self.booleano = booleano
+            self.hit_list = pygame.sprite.spritecollide(self.unidad, self.grupo, self.booleano)
+            for _ in self.hit_list:
+                if unidad.vida > 0:
+                    self.unidad.vida -= 1
+                    player.score += 1
+                    print (player.score)
+                if unidad.vida <= 0:
+                    self.unidad.aparicion = False
    
     
     #Esta función debería tomar dos caminos dependiendo de si es una lista o no.

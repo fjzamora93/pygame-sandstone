@@ -1,4 +1,4 @@
-import pygame,glob,random, mis_funciones
+import pygame,glob,random, mis_funciones, stats
 from mis_funciones import Detectar_Colision
 import os, mis_sprites
 from class_proyectil import Proyectil
@@ -12,6 +12,8 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.sprites_player = mis_funciones.obtener_ruta('models/player') 
         
+        
+
         self.image = mis_sprites.cargar_sprite('models/player', 0)
         self.rect = self.image.get_rect()
         self.rect.x = 50
@@ -21,7 +23,7 @@ class Player(pygame.sprite.Sprite):
         self.vidas = 10
         self.direction = "right"
         self.score = 0
-
+        
      
         # variables del salto,caida y gravedad
         self.jumping = False

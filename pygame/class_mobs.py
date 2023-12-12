@@ -159,11 +159,7 @@ class Mob(pygame.sprite.Sprite):
                     self.vida = 10
                 self.stats = stats.Stats(f'models/stats/{self.subtipo}',self.rect.x, self.rect.y, self.vida)
                 sprites_list.add(self.stats)
-                    
-            
             self.stats.actualizar( self.rect.x, self.rect.y -30, self.vida, self.subtipo)
-      
-
         else:
             sprites_list.remove(self.stats)
             #del instancia, es la otra forma de acabar con una instancia

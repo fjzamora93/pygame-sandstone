@@ -18,6 +18,4 @@ def cargar_sprite(carpeta_destino, n):
 
 
 
-
-
 #iconos_menu = mis_funciones.obtener_ruta('models', 'menu')
