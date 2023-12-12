@@ -1,6 +1,6 @@
-import pygame,glob,random, mis_funciones, stats
-from mis_funciones import Detectar_Colision
-import os, mis_sprites
+import pygame,glob,random, stats
+from colisiones import Detectar_Colision
+import os, mis_sprites, textos_pantalla
 from class_proyectil import Proyectil
 from class_items import Items
 ancho = 900
@@ -8,12 +8,8 @@ alto = 554
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, screen):
         super().__init__()
-        self.sprites_player = mis_funciones.obtener_ruta('models/player') 
-        
-        
-
         self.image = mis_sprites.cargar_sprite('models/player', 0)
         self.rect = self.image.get_rect()
         self.rect.x = 50
@@ -23,8 +19,7 @@ class Player(pygame.sprite.Sprite):
         self.vidas = 10
         self.direction = "right"
         self.score = 0
-        
-     
+
         # variables del salto,caida y gravedad
         self.jumping = False
         self.jump_count = 10
@@ -48,6 +43,7 @@ class Player(pygame.sprite.Sprite):
        
 
     def update(self):  
+        
         if self.speed_x != 0:
             self.subcarpeta = 'caminar'
             self.animacion = True
@@ -115,9 +111,14 @@ class Player(pygame.sprite.Sprite):
             case 6:
                 self.subcarpeta='protection'
 
-    def proteccion(self):
+    def proteccion(self,all_sprites_list,proyectil_list):
+        self.escudo = Proyectil(self.rect.x, self.rect.y, self.direction, self.limite_proyectil)
+        self.escudo.subtipo = "shield"
+        self.escudo.skill=6
         self.guardia_activa = True
         self.subcarpeta = 'protection'
+        self.vector = 'static'
+        self.escudo.skill_set(all_sprites_list,proyectil_list)
         
     
 
@@ -148,7 +149,7 @@ class Player(pygame.sprite.Sprite):
             if event.key == pygame.K_a:
                 self.speed_x = -5
             if event.key == pygame.K_s:
-                self.proteccion()
+                self.proteccion(all_sprites_list,proyectil_list)
             
             if not self.jumping:
                 if event.key == pygame.K_w:

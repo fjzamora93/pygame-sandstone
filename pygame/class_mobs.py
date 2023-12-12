@@ -1,6 +1,6 @@
 import pygame, random, sys, os, class_soundtrack, mis_sprites, temporizador, stats
 from class_proyectil import Proyectil
-from mis_funciones import Detectar_Colision
+from colisiones import Detectar_Colision
 ancho=900
 alto=554
 screen= pygame.display.set_mode([ancho,alto])
@@ -87,7 +87,7 @@ class Mob(pygame.sprite.Sprite):
         self.mob_atack.skill = -5 #PON EN NEGATIVO LA SKILL DEL MOB, EN POSITIVO LAS DEL PLAYER
         self.mob_atack.vector = "horizontal"
         self.mob_atack.speed = 3
-        self.mob_atack.image = pygame.image.load(os.path.join('models','skill','bad_omen.png')).convert_alpha()
+        self.mob_atack.subtipo = "smoke"
         if player_position > self.rect.x:
             self.direction = "right"
         elif player_position < self.rect.x:
@@ -115,7 +115,7 @@ class Mob(pygame.sprite.Sprite):
         self.mob_atack.skill = -3
         self.mob_atack.vector = "vertical"
         self.mob_atack.target = player_position
-        self.mob_atack.image = pygame.image.load(os.path.join('models','skill','conduit.png')).convert_alpha()
+        self.mob_atack.subtipo = "rocket"
         all_sprites_list.add(self.mob_atack)
         mob_atack_list.add(self.mob_atack)
 

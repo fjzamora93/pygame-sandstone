@@ -1,7 +1,7 @@
 
 
 import pygame, random, os
-import textos_pantalla,stats, mis_funciones, mis_sprites
+import textos_pantalla,stats, colisiones, mis_sprites
 from tkinter import *
 pygame.mixer.init() #Para reproducir sonidos, guapi
 
@@ -18,14 +18,10 @@ numero_frames = 5
 
 #todo ANTES DE CLASS GAME, PODRÍAN IR TODAS LAS CLASES IMPORTADAS
 import __lvl_0__
-
-
 from class_mobs import Mob
 from class_proyectil import Proyectil
 from class_player import Player
 from class_blocks import Block
-from class_blocks import obtener_ruta
-from background import obtener_background_path
 from class_items import Items
 from class_button import Button
 from class_mouse import Mouse
@@ -57,7 +53,7 @@ class Game_2(object):
         #TODOS LOS ENTIDADES QUE VAMOS A INICIALIZAR
         self.menu = Menu(self.nivel)
         self.item = Items()
-        self.player = Player()
+        self.player = Player(self.screen)
         self.boss = Mob('boss', self.nivel, self.player.rect.x)
         self.mob = Mob('mob', self.nivel, self.player.rect.x)
         

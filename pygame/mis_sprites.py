@@ -1,14 +1,14 @@
 
 #PATH DE LOS ATAQUES
 
-import mis_funciones,os,pygame,glob
+import colisiones,os,pygame,glob
 
-sonic = 'models/particle/sonic'
-sword = 'models/particle/sword'
-ice = 'models/particle/ice'
-explosion = 'models/particle/explosion'
 
-#!Esta función actualiza a la función obtener_ruta de "mis_funciones".
+
+#os.path.join() busca en la carpeta de destino todos los archivos con esa terminación.
+#path_list es la lista donde vamos a guardar cosas.
+#glob.glob() nos devuelve los archivos del patron_png y nos lo mete en la lista.
+#return nos indica lo que devuelve la función, para almacenarlo en una variable (por lo general tendrá el mismo nombre)
 def cargar_sprite(carpeta_destino, n):
     patron_png = os.path.join(carpeta_destino,"*.png")
     path_list = []
