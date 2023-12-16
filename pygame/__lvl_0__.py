@@ -5,7 +5,7 @@ Librería de artes gratis: https://opengameart.org/content/lpc-medieval-fantasy-
 
 
 import pygame, random, os
-import class_soundtrack,textos_pantalla,stats, mis_funciones
+import class_soundtrack,textos_pantalla,stats
 
 pygame.mixer.init() #Para reproducir sonidos, guapi
 

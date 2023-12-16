@@ -1,9 +1,9 @@
-import pygame, random, sys, os, class_soundtrack, mis_sprites, temporizador
+import pygame, random, sys, os, class_soundtrack, mis_sprites, temporizador, stats
 from class_proyectil import Proyectil
-from mis_funciones import Detectar_Colision
+from colisiones import Detectar_Colision
 ancho=900
 alto=554
-
+screen= pygame.display.set_mode([ancho,alto])
 
 
 class Mob(pygame.sprite.Sprite):
@@ -19,6 +19,7 @@ class Mob(pygame.sprite.Sprite):
         self.speed_y = 1
         self.direction = "right"
         self.vida = self.nivel 
+        self.stats = None
        
         #Gestión de acciones
         self.posicion_origen = self.rect.x, self.rect.y
@@ -86,7 +87,7 @@ class Mob(pygame.sprite.Sprite):
         self.mob_atack.skill = -5 #PON EN NEGATIVO LA SKILL DEL MOB, EN POSITIVO LAS DEL PLAYER
         self.mob_atack.vector = "horizontal"
         self.mob_atack.speed = 3
-        self.mob_atack.image = pygame.image.load(os.path.join('models','skill','bad_omen.png')).convert_alpha()
+        self.mob_atack.subtipo = "smoke"
         if player_position > self.rect.x:
             self.direction = "right"
         elif player_position < self.rect.x:
@@ -114,7 +115,7 @@ class Mob(pygame.sprite.Sprite):
         self.mob_atack.skill = -3
         self.mob_atack.vector = "vertical"
         self.mob_atack.target = player_position
-        self.mob_atack.image = pygame.image.load(os.path.join('models','skill','conduit.png')).convert_alpha()
+        self.mob_atack.subtipo = "rocket"
         all_sprites_list.add(self.mob_atack)
         mob_atack_list.add(self.mob_atack)
 
@@ -129,11 +130,11 @@ class Mob(pygame.sprite.Sprite):
             self.n = 2
             self.direction = "left"
         if self.jumping:
-            self.n = 6
-        elif self.eleccion == "atacar":
             self.n = 3
+        elif self.eleccion == "atacar":
+            self.n = 4
         elif self.eleccion == "pausa":
-            self.n = 10
+            self.n = 6
         if self.vida <= 0 :
            self.n = 5 #Los sprites los detecta fatal... El 5 es el 4???
         self.image = mis_sprites.cargar_sprite(f'models/entity/{self.subtipo}/{self.nivel}', self.n)
@@ -142,16 +143,30 @@ class Mob(pygame.sprite.Sprite):
         
  
     def spawn(self, player_x, sprites_list, mob_list):
-        sprites_list.add(self)
+        if self.vida > 0:
+            sprites_list.add(self)
+            if self.aparicion == False:
+                mob_list.append (self)
+                self.rect.y = 480
+                self.aparicion=True
+                if player_x < ancho // 2:
+                    self.rect.x = player_x + 300
+                elif player_x > ancho // 2:
+                    self.rect.x = player_x - 300
+                    
+                #ACTUALIZACIÓN DE STATS
+                if self.subtipo == "boss":
+                    self.vida = 10
+                self.stats = stats.Stats(f'models/stats/{self.subtipo}',self.rect.x, self.rect.y, self.vida)
+                sprites_list.add(self.stats)
+            self.stats.actualizar( self.rect.x, self.rect.y -30, self.vida, self.subtipo)
+        else:
+            sprites_list.remove(self.stats)
+            #del instancia, es la otra forma de acabar con una instancia
        
-        if self.aparicion == False:
-            mob_list.append (self)
-            self.rect.y = 480
-            self.aparicion=True
-            if player_x < ancho // 2:
-                self.rect.x = player_x + 300
-            elif player_x > ancho // 2:
-                self.rect.x = player_x - 300
+        
+
+
 
     def generar_minion(self, sprites, minion_list):
         self.rect.x = random.randrange(ancho)
@@ -165,6 +180,9 @@ class Mob(pygame.sprite.Sprite):
         if self.rect.y > alto:
             self.rect.y = -10
             self.rect.x = random.randrange(ancho)
+
+    
+        
     
 
  

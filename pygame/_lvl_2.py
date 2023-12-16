@@ -1,14 +1,13 @@
 
 
 import pygame, random, os
-import textos_pantalla,stats, mis_funciones, mis_sprites
+import textos_pantalla,stats, colisiones, mis_sprites
 from tkinter import *
 pygame.mixer.init() #Para reproducir sonidos, guapi
 
 nivel = 2
 ancho = 900
 alto = 554
-screen= pygame.display.set_mode([ancho,alto])
 black = (0, 0, 0)
 white = (255, 255, 255)
 temporizador = 10
@@ -19,14 +18,10 @@ numero_frames = 5
 
 #todo ANTES DE CLASS GAME, PODRÍAN IR TODAS LAS CLASES IMPORTADAS
 import __lvl_0__
-
-
 from class_mobs import Mob
 from class_proyectil import Proyectil
 from class_player import Player
 from class_blocks import Block
-from class_blocks import obtener_ruta
-from background import obtener_background_path
 from class_items import Items
 from class_button import Button
 from class_mouse import Mouse
@@ -34,7 +29,8 @@ from class_menu import Menu
 
 class Game_2(object):
     def __init__(self):
-        pygame.display.set_caption("Tales of Sandstone") 
+        pygame.display.set_caption("Tales of Sandstone")
+        self.screen = pygame.display.set_mode([ancho,alto])
         self.nivel = 2
         self.game_over = False
         self.n = 0
@@ -57,7 +53,7 @@ class Game_2(object):
         #TODOS LOS ENTIDADES QUE VAMOS A INICIALIZAR
         self.menu = Menu(self.nivel)
         self.item = Items()
-        self.player = Player()
+        self.player = Player(self.screen)
         self.boss = Mob('boss', self.nivel, self.player.rect.x)
         self.mob = Mob('mob', self.nivel, self.player.rect.x)
         
@@ -100,9 +96,9 @@ class Game_2(object):
             self.sprites.update()
 
             #TODOS SPAWN DE MOBS
-            if self.player.score >= 0 and self.mob.vida >= 1:
+            if self.player.score >= 0:
                 self.mob.spawn(self.player.rect.x, self.sprites, self.mob_list)    
-            if self.player.score >= 2 and self.boss.vida > 0:
+            if self.player.score >= 2:
                 self.boss.spawn(self.player.rect.x, self.sprites, self.mob_list)
                 self.boss.accion_aleatoria(self.sprites, self.minion_list, self.player.rect.x)
             if len(self.minion_list) == 0:
@@ -145,22 +141,22 @@ class Game_2(object):
           
 
             
-    def display_frame(self,screen):
+    def display_frame(self):
        
         background= mis_sprites.cargar_sprite(self.sprites_nivel, 0)
         suelo = pygame.image.load(os.path.join('background','mountain','suelo_2.png')).convert_alpha()
         
         #En la siguiente linea: la posición del jugador se le resta la cámara (0) y el ancho (si dividimos ancho//2 me quedo sin pantalla!!!)
         self.camera += (self.player.rect.x/2 - self.camera - ancho)
-        screen.blit(background, [-900-self.camera, 0])
-        screen.blit(suelo, [0,520])
+        self.screen.blit(background, [-900-self.camera, 0])
+        self.screen.blit(suelo, [0,520])
 
 
     
 
         #! PANTALLA DE FIN DEL JUEGO
         if self.game_over:
-            textos_pantalla.texto_1(white,ancho,alto,screen, "Haz click en pantalla para reiniciar")
+            textos_pantalla.texto_1(white,ancho,alto,self.screen, "Haz click en pantalla para reiniciar")
             pygame.mouse.set_visible(True)
         
         self.button.update()
@@ -178,23 +174,19 @@ class Game_2(object):
         #! STATS Y PUNTUACIONES
         if not self.game_over and not self.menu.open_menu:
             pygame.mouse.set_visible(False)
-            textos_pantalla.texto_variable(screen, self.player.score, 710,10)
-            stats.hearts(screen, self.player.vidas)
-            ruta = os.path.join('models', 'particle', 'mana.png')
-            stats.generar_stat(screen, self.player.limite_proyectil, ruta, 10, 50, 10, len(self.proyectil_list))
-            if self.boss.aparicion == True:
-                stats.hearts_mob(screen,self.boss.vida)
-            textos_pantalla.texto_cargas(screen, self.player.amount_charge)
+            textos_pantalla.texto_variable(self.screen, self.player.score, 710,10)
+            stats.generar_stat(self.screen, self.player.limite_proyectil, 'models/stats/mana.png', 10, 50, 10, len(self.proyectil_list))
+            stats.generar_stat(self.screen, self.player.vidas, 'models/stats/hearts.png', 10, 20, 10, 0)
+            textos_pantalla.texto_cargas(self.screen, self.player.amount_charge)
             
+
             #!Este de aquí es obligatorio para actualizar lo que se ve en pantalla
-            self.sprites.draw(screen) 
-
-
+            self.sprites.draw(self.screen) 
         pygame.display.flip()
 
 def main():
     pygame.init()
-    screen= pygame.display.set_mode([ancho,alto])
+   
     pygame.display.set_caption("Coordenadas del Ratón")
     done= False
     clock = pygame.time.Clock()
@@ -204,7 +196,7 @@ def main():
         if game_2.nivel == 2:
             done = game_2.process_events()
             game_2.run_logic()
-            game_2.display_frame(screen)
+            game_2.display_frame()
             clock.tick(60)
 
         elif game_2.nivel == 1:
